@@ -1,0 +1,50 @@
+workflows:
+  iqra-ios-testflight:
+    name: Iqra iOS - TestFlight
+    instance_type: mac_mini_m2
+    max_build_duration: 120
+
+    triggering:
+      events:
+        - push
+      branch_patterns:
+        - pattern: "main"
+          include: true
+          source: true
+
+    integrations:
+      app_store_connect: YOUR_ASC_KEY_NAME
+
+    environment:
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: com.iqra.schoolapp
+      flutter: stable
+      xcode: latest
+      vars:
+        APP_STORE_ID: 0000000000
+        BUNDLE_ID: com.iqra.schoolapp
+
+    scripts:
+      - name: Get Flutter packages
+        script: |
+          flutter packages pub get
+      - name: Set up code signing
+        script: |
+          xcode-project use-profiles
+      - name: Build IPA (Auto versioning)
+        script: |
+          BUILD_NUMBER=$(($(app-store-connect get-latest-testflight-build-number "$APP_STORE_ID") + 1))
+          flutter build ipa --release \
+            --build-number=$BUILD_NUMBER \
+            --export-options-plist=/Users/builder/export_options.plist
+
+    artifacts:
+      - build/ios/ipa/*.ipa
+      - /tmp/xcodebuild_logs/*.log
+      - $HOME/Library/Developer/Xcode/DerivedData/**/Build/**/*.dSYM
+
+    publishing:
+      app_store_connect:
+        auth: integration
+        submit_to_testflight: true

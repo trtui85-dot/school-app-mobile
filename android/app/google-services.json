@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "1052403097026",
+    "project_id": "iqra-modernes",
+    "storage_bucket": "iqra-modernes.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1052403097026:android:96bc886088ebe9bb104a5b",
+        "android_client_info": {
+          "package_name": "com.iqra.schoolapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDhdHQehVhtcC5TcNDNJD8YiB-EpD8bIEM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1052403097026:android:3c3e66a00bc0c0a0104a5b",
+        "android_client_info": {
+          "package_name": "com.iqramodernes.appiqra"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDhdHQehVhtcC5TcNDNJD8YiB-EpD8bIEM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
