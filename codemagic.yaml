@@ -34,7 +34,8 @@ workflows:
           xcode-project use-profiles
       - name: Build IPA (Auto versioning)
         script: |
-          BUILD_NUMBER=$(($(app-store-connect get-latest-testflight-build-number "$APP_STORE_ID") + 1))
+          LATEST=$(app-store-connect get-latest-testflight-build-number "$APP_STORE_ID")
+          BUILD_NUMBER=$((${LATEST:-0} + 1))
           flutter build ipa --release \
             --build-number=$BUILD_NUMBER \
             --export-options-plist=/Users/builder/export_options.plist
