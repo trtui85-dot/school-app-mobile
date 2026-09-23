@@ -13,6 +13,7 @@ import 'complaints_screen.dart';
 import 'home_screen.dart';
 import 'notifications_screen.dart';
 import 'register_screen.dart';
+import 'settings_screen.dart';
 
 class AgentShell extends StatefulWidget {
   const AgentShell({super.key});
@@ -62,6 +63,14 @@ class _AgentShellState extends State<AgentShell> {
               icon: const Icon(Icons.phone_outlined, color: AppColors.zinc600),
               onPressed: () => launchUrl(Uri.parse('tel:$_adminPhone')),
             ),
+          IconButton(
+            tooltip: tr('الإعدادات'),
+            icon: const Icon(Icons.settings_outlined, color: AppColors.zinc600),
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const AgentSettingsScreen()),
+            ),
+          ),
           IconButton(
             tooltip: tr('خروج'),
             icon: const Icon(Icons.logout, color: AppColors.zinc600),

@@ -278,4 +278,31 @@ const Map<String, String> _fr = {
   '8. التواصل': "8. Contact",
   'لأي استفسار حول هذه الشروط يرجى التواصل مع إدارة مدارس اقرأ الحديثة.':
       "Pour toute question concernant ces conditions, veuillez contacter l'administration des Écoles Iqra Modernes.",
+
+  // ---- Agent settings ----
+  'الإعدادات': 'Paramètres',
+  'ملفي الشخصي': 'Mon profil',
+  'عدد التلاميذ': "Nombre d'élèves",
+  'عضو منذ': 'Membre depuis',
+  'حفظ': 'Enregistrer',
+  'اللغة': 'Langue',
+  'العربية': 'Arabe',
+  'الفرنسية': 'Français',
+  'تغيير كلمة المرور': 'Changer le mot de passe',
+  'كلمة المرور الحالية': 'Mot de passe actuel',
+  'كلمة المرور الجديدة': 'Nouveau mot de passe',
+  'حذف الحساب': 'Supprimer le compte',
+  'حذف الحساب نهائيًا': 'Supprimer définitivement le compte',
+  'سيتم حذف جميع بياناتك وتلاميذك نهائيًا ولا يمكن التراجع.':
+      'Toutes vos données et vos enfants seront supprimés définitivement, sans retour possible.',
+  'أدخل كلمة المرور للتأكيد': 'Entrez votre mot de passe pour confirmer',
+  'تأكيد الحذف': 'Confirmer la suppression',
+  'إلغاء': 'Annuler',
+  'أدخل كلمة المرور الجديدة': 'Entrez le nouveau mot de passe',
+  'تم حفظ الاسم': 'Nom enregistré',
+  'تم تغيير كلمة المرور': 'Mot de passe modifié',
+  'تم حذف الحساب': 'Compte supprimé',
+  'تم حذف حسابك نهائيًا. نتشرف بخدمتك مستقبلًا.':
+      'Votre compte a été supprimé définitivement. Au plaisir de vous servir.',
+  'سجل الخروج': 'Se déconnecter',
 };
