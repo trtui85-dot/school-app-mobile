@@ -24,6 +24,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
   bool _loadingInfo = true;
   bool _submitting = false;
   bool _done = false;
+  bool _regOpen = true;
+  String _regReason = '';
   String _error = '';
   String? _proof;
   String? _copiedBank;
@@ -59,7 +61,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
   Future<void> _load() async {
     try {
       final d = await ApiClient.instance.get('/api/public/register-info');
+      final reg = asMap(d['registration']);
       setState(() {
+        _regOpen = asStr(reg['open'], 'true').toLowerCase().contains('true');
+        _regReason = asStrOrNull(reg['reason']) ?? '';
         _sections = asMapList(d['sections'])
             .map((s) => SectionOption(
                   id: asInt(s['id']),
@@ -88,6 +93,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   Future<void> _submit() async {
     setState(() => _error = '');
+    if (!_regOpen) return setState(() => _error = tr('التسجيل متوقف حاليًا'));
     if (_sectionId == null) return setState(() => _error = tr('اختر القسم المطلوب'));
     if (_arabicFirst.text.trim().length < 2 || _arabicLast.text.trim().length < 2) {
       return setState(() => _error = tr('الاسم واللقب بالعربية مطلوبان'));
@@ -131,6 +137,42 @@ class _RegisterScreenState extends State<RegisterScreen> {
     }
 
     if (_loadingInfo) return const AppSpinner();
+
+    if (!_regOpen) {
+      return ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          Text(tr('تسجيل طفل جديد'), style: AppText.h1),
+          const SizedBox(height: 16),
+          AppCard(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 12),
+              child: Column(
+                children: [
+                  const Icon(Icons.pause_circle_outline, size: 56, color: AppColors.bad),
+                  const SizedBox(height: 12),
+                  Text(
+                    tr('عذرًا، التسجيل متوقف حاليًا'),
+                    textAlign: TextAlign.center,
+                    style: ar(16, FontWeight.w700, AppColors.foreground),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    _regReason.isNotEmpty
+                        ? _regReason
+                        : tr('يُستأنف التسجيل عندما تُعلن الإدارة ذلك.'),
+                    textAlign: TextAlign.center,
+                    style: ar(13, FontWeight.w400, AppColors.zinc600),
+                  ),
+                  const SizedBox(height: 16),
+                  AppButton(text: tr('إعادة المحاولة'), expand: true, onPressed: _load),
+                ],
+              ),
+            ),
+          ),
+        ],
+      );
+    }
 
     return ListView(
       padding: const EdgeInsets.all(16),

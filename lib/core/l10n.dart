@@ -160,6 +160,9 @@ const Map<String, String> _fr = {
   'اختر القسم المطلوب': 'Choisissez la section souhaitée',
   'الاسم واللقب بالعربية مطلوبان': 'Le prénom et le nom en arabe sont requis',
   'صورة إثبات دفع رسوم التسجيل مطلوبة': "Une photo de preuve des frais d'inscription est requise",
+  'عذرًا، التسجيل متوقف حاليًا': 'Désolé, les inscriptions sont actuellement suspendues',
+  'يُستأنف التسجيل عندما تُعلن الإدارة ذلك.': "Les inscriptions reprendront dès que l'administration l'annoncera.",
+  'التسجيل متوقف حاليًا': 'Les inscriptions sont actuellement suspendues',
 
   // ---- Sections picker ----
   'القسم المطلوب': 'Section souhaitée',

@@ -16,6 +16,8 @@ class RequestsScreen extends StatefulWidget {
 
 class _RequestsScreenState extends State<RequestsScreen> {
   List<Map<String, dynamic>>? _requests;
+  bool _regOpen = true;
+  String _regReason = '';
 
   @override
   void initState() {
@@ -35,6 +37,114 @@ class _RequestsScreenState extends State<RequestsScreen> {
         setState(() => _requests = []);
       }
     }
+    try {
+      final d = await ApiClient.instance.get('/api/admin/registration');
+      if (!mounted) return;
+      final reg = asMap(d['registration']);
+      setState(() {
+        _regOpen = asStr(reg['open'], 'true').toLowerCase().contains('true');
+        _regReason = asStrOrNull(reg['reason']) ?? '';
+      });
+    } on ApiException catch (_) {}
+  }
+
+  Future<void> _openRegistrationDialog({required bool stop}) async {
+    final reasonCtrl = TextEditingController();
+    String error = '';
+    bool saving = false;
+
+    await showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.card)),
+      ),
+      builder: (sheetContext) {
+        return StatefulBuilder(
+          builder: (context, setSheet) {
+            return Padding(
+              padding: EdgeInsets.only(
+                left: 16,
+                right: 16,
+                top: 16,
+                bottom: MediaQuery.of(sheetContext).viewInsets.bottom + 16,
+              ),
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(stop ? 'إيقاف التسجيل حاليًا' : 'تفعيل التسجيل', style: AppText.h2),
+                        ),
+                        TextButton(
+                          onPressed: () => Navigator.pop(sheetContext),
+                          child: Text('إغلاق', style: ar(13, FontWeight.w600, AppColors.zinc500)),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    if (stop) ...[
+                      Text(
+                        'سيظهر للوكيل عند محاولة تسجيل طفل جديد: «عذرًا، التسجيل متوقف حاليًا» ويظهر فوقه السبب.',
+                        style: ar(13, FontWeight.w400, AppColors.zinc600),
+                      ),
+                      const SizedBox(height: 12),
+                      AppTextarea(label: 'سبب التوقف (يظهر للوكيل)', controller: reasonCtrl),
+                    ] else
+                      Text(
+                        'سيُسمح للتلاميذ الجدد بإرسال طلبات التسجيل من جديد.',
+                        style: ar(13, FontWeight.w400, AppColors.zinc600),
+                      ),
+                    if (error.isNotEmpty) ...[
+                      const SizedBox(height: 10),
+                      Text(error, style: ar(13, FontWeight.w400, AppColors.bad)),
+                    ],
+                    const SizedBox(height: 16),
+                    AppButton(
+                      text: stop ? 'تأكيد إيقاف التسجيل' : 'تأكيد تفعيل التسجيل',
+                      variant: stop ? AppButtonVariant.danger : AppButtonVariant.success,
+                      expand: true,
+                      loading: saving,
+                      onPressed: () async {
+                        if (stop && reasonCtrl.text.trim().isEmpty) {
+                          setSheet(() => error = 'سبب توقف التسجيل مطلوب');
+                          return;
+                        }
+                        setSheet(() {
+                          error = '';
+                          saving = true;
+                        });
+                        try {
+                          await ApiClient.instance.put('/api/admin/registration', body: {
+                            'open': !stop,
+                            'reason': stop ? reasonCtrl.text.trim() : '',
+                          });
+                          if (!sheetContext.mounted) return;
+                          Navigator.pop(sheetContext);
+                          if (mounted) {
+                            showToast(context, stop ? 'تم إيقاف التسجيل' : 'تم تفعيل التسجيل');
+                          }
+                          _load();
+                        } on ApiException catch (e) {
+                          setSheet(() {
+                            error = e.message;
+                            saving = false;
+                          });
+                        }
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
   }
 
   @override
@@ -51,6 +161,51 @@ class _RequestsScreenState extends State<RequestsScreen> {
               const SizedBox(width: 8),
               Text('(${_requests?.length ?? 0})', style: mono(12, FontWeight.w400, AppColors.zinc400)),
             ],
+          ),
+          const SizedBox(height: 16),
+          AppCard(
+            child: Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('حالة التسجيل', style: AppText.label),
+                      const SizedBox(height: 2),
+                      Row(
+                        children: [
+                          Container(
+                            width: 8,
+                            height: 8,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: _regOpen ? AppColors.ok : AppColors.bad,
+                            ),
+                          ),
+                          const SizedBox(width: 6),
+                          Text(
+                            _regOpen ? 'التسجيل مفعل' : 'التسجيل موقف',
+                            style: ar(13, FontWeight.w600,
+                                _regOpen ? AppColors.ok : AppColors.bad),
+                          ),
+                        ],
+                      ),
+                      if (!_regOpen && _regReason.isNotEmpty) ...[
+                        const SizedBox(height: 6),
+                        Text('السبب: $_regReason',
+                            style: ar(12, FontWeight.w400, AppColors.zinc600)),
+                      ],
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 12),
+                AppButton(
+                  text: _regOpen ? 'إيقاف التسجيل' : 'تفعيل التسجيل',
+                  variant: _regOpen ? AppButtonVariant.danger : AppButtonVariant.success,
+                  onPressed: () => _openRegistrationDialog(stop: _regOpen),
+                ),
+              ],
+            ),
           ),
           const SizedBox(height: 16),
           if (_requests == null)
