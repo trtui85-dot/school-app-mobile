@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../core/api_client.dart';
+import '../../core/l10n.dart';
 import '../../core/theme.dart';
 import '../../core/utils.dart';
 import '../../widgets/success_screen.dart';
@@ -47,8 +48,8 @@ class _ComplaintsScreenState extends State<ComplaintsScreen> {
 
   Future<void> _submit() async {
     setState(() => _error = '');
-    if (_title.text.trim().length < 3) return setState(() => _error = 'العنوان مطلوب');
-    if (_content.text.trim().length < 5) return setState(() => _error = 'نص الرسالة مطلوب');
+    if (_title.text.trim().length < 3) return setState(() => _error = tr('العنوان مطلوب'));
+    if (_content.text.trim().length < 5) return setState(() => _error = tr('نص الرسالة مطلوب'));
     setState(() => _loading = true);
     try {
       await ApiClient.instance.post('/api/me/complaints', body: {
@@ -67,9 +68,9 @@ class _ComplaintsScreenState extends State<ComplaintsScreen> {
   Widget build(BuildContext context) {
     if (_done) {
       return SuccessScreen(
-        title: 'تم إرسال رسالتكم',
-        description: 'تم إرسال رسالتك إلى الإدارة بنجاح، وسيتم الرد عليها في أقرب وقت.',
-        doneLabel: 'متابعة',
+        title: tr('تم إرسال رسالتكم'),
+        description: tr('تم إرسال رسالتك إلى الإدارة بنجاح، وسيتم الرد عليها في أقرب وقت.'),
+        doneLabel: tr('متابعة'),
         onDone: () {
           _title.clear();
           _content.clear();
@@ -81,14 +82,14 @@ class _ComplaintsScreenState extends State<ComplaintsScreen> {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        Text('التواصل مع الإدارة', style: AppText.h1),
+        Text(tr('التواصل مع الإدارة'), style: AppText.h1),
         const SizedBox(height: 16),
         AppCard(
           child: Column(
             children: [
-              AppInput(label: 'عنوان الشكوى/الطلب', controller: _title),
+              AppInput(label: tr('عنوان الشكوى/الطلب'), controller: _title),
               const SizedBox(height: 12),
-              AppTextarea(label: 'نص الرسالة', controller: _content),
+              AppTextarea(label: tr('نص الرسالة'), controller: _content),
               if (_error.isNotEmpty) ...[
                 const SizedBox(height: 8),
                 Align(
@@ -97,7 +98,7 @@ class _ComplaintsScreenState extends State<ComplaintsScreen> {
                 ),
               ],
               const SizedBox(height: 12),
-              AppButton(text: 'إرسال إلى الإدارة', expand: true, loading: _loading, onPressed: _submit),
+              AppButton(text: tr('إرسال إلى الإدارة'), expand: true, loading: _loading, onPressed: _submit),
             ],
           ),
         ),
@@ -105,16 +106,16 @@ class _ComplaintsScreenState extends State<ComplaintsScreen> {
         if ((_complaints ?? []).isNotEmpty) ...[
           Align(
             alignment: Alignment.centerRight,
-            child: Text('شكواي السابقة', style: AppText.title),
+            child: Text(tr('شكواي السابقة'), style: AppText.title),
           ),
           const SizedBox(height: 8),
           ..._complaints!.map((c) {
             final status = asStr(c['status'], 'NEW');
             final label = status == 'ANSWERED'
-                ? 'تم الرد'
+                ? tr('تم الرد')
                 : status == 'PROCESSING'
-                    ? 'قيد المعالجة'
-                    : 'جديدة';
+                    ? tr('قيد المعالجة')
+                    : tr('جديدة');
             final tone = status == 'ANSWERED'
                 ? BadgeTone.ok
                 : status == 'PROCESSING'
@@ -148,7 +149,7 @@ class _ComplaintsScreenState extends State<ComplaintsScreen> {
                         child: RichText(
                           text: TextSpan(
                             children: [
-                              TextSpan(text: 'رد الإدارة: ', style: ar(12, FontWeight.w600, AppColors.ok)),
+                              TextSpan(text: tr('رد الإدارة: '), style: ar(12, FontWeight.w600, AppColors.ok)),
                               TextSpan(text: reply, style: ar(12, FontWeight.w400, AppColors.zinc700)),
                             ],
                           ),

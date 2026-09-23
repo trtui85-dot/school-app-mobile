@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../core/l10n.dart';
 import '../core/theme.dart';
 import '../core/utils.dart';
 
@@ -36,8 +37,8 @@ class Timetable extends StatelessWidget {
           decoration: const BoxDecoration(color: AppColors.zinc100),
           children: [
             for (final i in _dayIndexes)
-              _cell(days[i], bold: true, bg: AppColors.zinc100),
-            _cell('الوقت', bold: true, bg: AppColors.accentSoft, color: AppColors.accent),
+              _cell(dayLabel(i), bold: true, bg: AppColors.zinc100),
+            _cell(tr('الوقت'), bold: true, bg: AppColors.accentSoft, color: AppColors.accent),
           ],
         );
 

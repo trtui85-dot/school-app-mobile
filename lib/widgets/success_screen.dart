@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../core/l10n.dart';
 import '../core/theme.dart';
 import 'ui.dart';
 
@@ -51,10 +52,10 @@ class SuccessScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 32),
-                ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 320),
-                  child: AppButton(text: doneLabel, expand: true, onPressed: onDone),
-                ),
+ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 320),
+                      child: AppButton(text: tr(doneLabel), expand: true, onPressed: onDone),
+                    ),
               ],
             ),
           ),

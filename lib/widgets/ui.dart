@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../core/l10n.dart';
 import '../core/theme.dart';
 
 enum AppButtonVariant { primary, outline, danger, success, ghost }
@@ -366,7 +367,7 @@ class ErrorBox extends StatelessWidget {
           Text(message, style: ar(14, FontWeight.w400, AppColors.bad)),
           if (onRetry != null) ...[
             const SizedBox(height: 8),
-            AppButton(text: 'إعادة المحاولة', variant: AppButtonVariant.outline, onPressed: onRetry),
+            AppButton(text: tr('إعادة المحاولة'), variant: AppButtonVariant.outline, onPressed: onRetry),
           ],
         ],
       ),

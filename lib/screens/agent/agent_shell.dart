@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../core/api_client.dart';
+import '../../core/l10n.dart';
 import '../../core/session.dart';
 import '../../core/theme.dart';
 import '../../core/utils.dart';
@@ -57,12 +58,12 @@ class _AgentShellState extends State<AgentShell> {
         actions: [
           if (_adminPhone != null && _adminPhone!.isNotEmpty)
             IconButton(
-              tooltip: 'اتصال',
+              tooltip: tr('اتصال'),
               icon: const Icon(Icons.phone_outlined, color: AppColors.zinc600),
               onPressed: () => launchUrl(Uri.parse('tel:$_adminPhone')),
             ),
           IconButton(
-            tooltip: 'خروج',
+            tooltip: tr('خروج'),
             icon: const Icon(Icons.logout, color: AppColors.zinc600),
             onPressed: () async {
               final session = context.read<SessionManager>();
@@ -89,10 +90,10 @@ class _AgentShellState extends State<AgentShell> {
             height: 56,
             child: Row(
               children: [
-                _tab(0, Icons.home_outlined, Icons.home, 'الرئيسية'),
-                _tab(1, Icons.person_add_alt, Icons.person_add_alt_1, 'تسجيل'),
-                _tab(2, Icons.notifications_none, Icons.notifications, 'الإشعارات'),
-                _tab(3, Icons.chat_bubble_outline, Icons.chat_bubble, 'الشكاوى'),
+                _tab(0, Icons.home_outlined, Icons.home, tr('الرئيسية')),
+                _tab(1, Icons.person_add_alt, Icons.person_add_alt_1, tr('تسجيل')),
+                _tab(2, Icons.notifications_none, Icons.notifications, tr('الإشعارات')),
+                _tab(3, Icons.chat_bubble_outline, Icons.chat_bubble, tr('الشكاوى')),
               ],
             ),
           ),

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import 'l10n.dart';
+
 /// Design tokens extracted from the web app (Tailwind v4 @theme).
 class AppColors {
   static const accent = Color(0xFF1D4ED8);
@@ -32,8 +34,10 @@ class AppRadius {
 }
 
 TextStyle ar(double size, FontWeight weight, Color color, {double? height}) =>
-    GoogleFonts.ibmPlexSansArabic(
-        fontSize: size, fontWeight: weight, color: color, height: height);
+    isFr
+        ? fr(size, weight, color, height: height)
+        : GoogleFonts.ibmPlexSansArabic(
+            fontSize: size, fontWeight: weight, color: color, height: height);
 
 TextStyle mono(double size, FontWeight weight, Color color) =>
     GoogleFonts.ibmPlexMono(fontSize: size, fontWeight: weight, color: color);
@@ -60,7 +64,9 @@ ThemeData buildAppTheme() {
       surface: AppColors.background,
     ),
   );
-  final textTheme = GoogleFonts.ibmPlexSansArabicTextTheme(base.textTheme);
+  final textTheme = isFr
+      ? GoogleFonts.quicksandTextTheme(base.textTheme)
+      : GoogleFonts.ibmPlexSansArabicTextTheme(base.textTheme);
   return base.copyWith(
     textTheme: textTheme.apply(
       bodyColor: AppColors.foreground,

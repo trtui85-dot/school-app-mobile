@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../core/api_client.dart';
+import '../../core/l10n.dart';
 import '../../core/theme.dart';
 import '../../core/utils.dart';
 import '../../widgets/receipt_screen.dart';
@@ -48,7 +49,7 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
   Widget build(BuildContext context) {
     final student = _data;
     final title = student == null
-        ? 'التلميذ'
+        ? tr('التلميذ')
         : '${asStr(student['arabicFirstName'])} ${asStr(student['arabicLastName'])}';
 
     return Scaffold(
@@ -77,7 +78,7 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
       s == 'APPROVED' ? BadgeTone.ok : s == 'REJECTED' ? BadgeTone.bad : BadgeTone.pending;
 
   String _statusLabel(String s) =>
-      s == 'APPROVED' ? 'مقبول' : s == 'REJECTED' ? 'مرفوض' : 'بانتظار التوثيق';
+      s == 'APPROVED' ? tr('مقبول') : s == 'REJECTED' ? tr('مرفوض') : tr('بانتظار التوثيق');
 
   Widget _home(Map<String, dynamic> student) {
     final status = asStr(student['status'], 'PENDING');
@@ -85,11 +86,11 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
     final section = student['section'] == null ? null : asMap(student['section']);
 
     final cards = [
-      ['الغياب', 'سجل الغياب وأيام الغيبة', Icons.event_busy, const Color(0xFFF43F5E)],
-      ['مواد وجدول', 'المواد الدراسية والجدول الأسبوعي', Icons.menu_book_outlined, const Color(0xFF8B5CF6)],
-      ['نتائج', 'الدرجات والنتائج الدراسية', Icons.emoji_events_outlined, const Color(0xFF10B981)],
-      ['رسائل الإدارة', 'رسائل إدارة المدرسة', Icons.message_outlined, const Color(0xFFF59E0B)],
-      ['الدفعات', 'رسوم التسجيل والاشتراكات الشهرية', Icons.credit_card, const Color(0xFF0EA5E9)],
+      ['الغياب', tr('سجل الغياب وأيام الغيبة'), Icons.event_busy, const Color(0xFFF43F5E)],
+      ['مواد وجدول', tr('المواد الدراسية والجدول الأسبوعي'), Icons.menu_book_outlined, const Color(0xFF8B5CF6)],
+      ['نتائج', tr('الدرجات والنتائج الدراسية'), Icons.emoji_events_outlined, const Color(0xFF10B981)],
+      ['رسائل الإدارة', tr('رسائل إدارة المدرسة'), Icons.message_outlined, const Color(0xFFF59E0B)],
+      ['الدفعات', tr('رسوم التسجيل والاشتراكات الشهرية'), Icons.credit_card, const Color(0xFF0EA5E9)],
     ];
 
     return ListView(
@@ -107,7 +108,7 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
                   Row(
                     children: [
                       Flexible(
-                        child: Text(section == null ? 'بدون قسم' : asStr(section['name']),
+                        child: Text(section == null ? tr('بدون قسم') : asStr(section['name']),
                             overflow: TextOverflow.ellipsis, style: ar(13, FontWeight.w400, AppColors.zinc500)),
                       ),
                       if (attendance != null) ...[
@@ -116,7 +117,7 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
                           padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                           decoration: BoxDecoration(
                               color: AppColors.zinc100, borderRadius: BorderRadius.circular(6)),
-                          child: Text('رقم النداء: $attendance',
+                          child: Text('${tr('رقم النداء: ')}$attendance',
                               style: mono(11, FontWeight.w400, AppColors.zinc600)),
                         ),
                       ],
@@ -134,7 +135,7 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
                 color: AppColors.pendingSoft, borderRadius: BorderRadius.circular(AppRadius.control)),
-            child: Text('طلب التسجيل قيد المراجعة من الإدارة.',
+            child: Text(tr('طلب التسجيل قيد المراجعة من الإدارة.'),
                 style: ar(14, FontWeight.w400, AppColors.pending)),
           ),
         if (status == 'REJECTED')
@@ -143,7 +144,7 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
             decoration: BoxDecoration(
                 color: AppColors.badSoft, borderRadius: BorderRadius.circular(AppRadius.control)),
             child: Text(
-              'تم رفض طلب التسجيل. السبب: ${asStrOrNull(student['rejectionReason']) ?? "غير محدد"}',
+              '${tr('تم رفض طلب التسجيل. السبب: ')}${asStrOrNull(student['rejectionReason']) ?? tr('غير محدد')}',
               style: ar(14, FontWeight.w400, AppColors.bad),
             ),
           ),
@@ -180,7 +181,7 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
                         child: Icon(c[2] as IconData, color: Colors.white, size: 20),
                       ),
                       const SizedBox(height: 12),
-                      Text(id, style: ar(14, FontWeight.w700, AppColors.zinc800)),
+                      Text(tr(id), style: ar(14, FontWeight.w700, AppColors.zinc800)),
                       const SizedBox(height: 4),
                       Expanded(
                         child: Text(c[1] as String,
@@ -188,7 +189,7 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
                       ),
                       Row(
                         children: [
-                          Text('عرض التفاصيل', style: ar(12, FontWeight.w600, AppColors.accent)),
+                          Text(tr('عرض التفاصيل'), style: ar(12, FontWeight.w600, AppColors.accent)),
                           const Icon(Icons.chevron_left, size: 14, color: AppColors.accent),
                         ],
                       ),
@@ -210,7 +211,7 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
         Row(
           children: [
             AppButton(
-              text: 'عودة',
+              text: tr('عودة'),
               variant: AppButtonVariant.outline,
               onPressed: () => setState(() => _screen = null),
             ),
@@ -222,7 +223,7 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
         if (_screen == 'الغياب') _absence(student),
         if (_screen == 'مواد وجدول') _subjectsAndSchedule(student),
         if (_screen == 'نتائج')
-          AppCard(child: const AppEmpty(title: 'قريبًا', hint: 'وحدة النتائج والدرجات ستتوفر لاحقًا')),
+          AppCard(child: AppEmpty(title: tr('قريبًا'), hint: tr('وحدة النتائج والدرجات ستتوفر لاحقًا'))),
         if (_screen == 'رسائل الإدارة') _messages(student),
         if (_screen == 'الدفعات') _payments(student),
       ],
@@ -242,11 +243,11 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
                 color: AppColors.badSoft, borderRadius: BorderRadius.circular(AppRadius.control)),
-            child: Text('⚠️ طفلك غائب اليوم',
+            child: Text(tr('⚠️ طفلك غائب اليوم'),
                 style: ar(14, FontWeight.w600, AppColors.bad)),
           ),
         if (absences.isEmpty)
-          AppCard(child: const AppEmpty(title: 'لا يوجد أي غياب مسجل'))
+          AppCard(child: AppEmpty(title: tr('لا يوجد أي غياب مسجل')))
         else
           AppCard(
             child: Column(
@@ -258,7 +259,7 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
                     children: [
                       Text('${monthLabel(d.month)} ${d.day}', style: AppText.body),
                       const Spacer(),
-                      const AppBadge('غائب', tone: BadgeTone.bad),
+                      AppBadge(tr('غائب'), tone: BadgeTone.bad),
                     ],
                   ),
                 );
@@ -271,7 +272,7 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
 
   Widget _subjectsAndSchedule(Map<String, dynamic> student) {
     final section = student['section'] == null ? null : asMap(student['section']);
-    if (section == null) return AppCard(child: const AppEmpty(title: 'لا توجد بيانات القسم'));
+    if (section == null) return AppCard(child: AppEmpty(title: tr('لا توجد بيانات القسم')));
     final subjects = asStrList(section['subjects']);
     final schedule = asMapList(section['schedule']);
     return Column(
@@ -280,7 +281,7 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('المواد الدراسية', style: ar(14, FontWeight.w700, AppColors.zinc700)),
+              Text(tr('المواد الدراسية'), style: ar(14, FontWeight.w700, AppColors.zinc700)),
               const SizedBox(height: 8),
               if (subjects.isEmpty)
                 Text('—', style: AppText.small)
@@ -305,7 +306,7 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('الجدول الزمني الأسبوعي', style: ar(14, FontWeight.w700, AppColors.zinc700)),
+              Text(tr('الجدول الزمني الأسبوعي'), style: ar(14, FontWeight.w700, AppColors.zinc700)),
               const SizedBox(height: 12),
               Timetable(schedule: schedule),
             ],
@@ -317,7 +318,7 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
 
   Widget _messages(Map<String, dynamic> student) {
     final notes = asMapList(student['notes']);
-    if (notes.isEmpty) return AppCard(child: const AppEmpty(title: 'لا توجد رسائل'));
+    if (notes.isEmpty) return AppCard(child: AppEmpty(title: tr('لا توجد رسائل')));
     return Column(
       children: notes
           .map((n) => Padding(
@@ -368,7 +369,7 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
               return Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(8)),
-                child: Text(m.label, style: ar(12, FontWeight.w500, fg)),
+                child: Text(tr(m.label), style: ar(12, FontWeight.w500, fg)),
               );
             }).toList(),
           ),
@@ -390,8 +391,8 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
                       children: [
                         Text(
                           isReg
-                              ? 'رسوم التسجيل'
-                              : 'رسوم ${monthLabel(month ?? 0)}${month != null ? " — ${asStr(p['schoolYear'])}" : ""}',
+                              ? tr('رسوم التسجيل')
+                              : '${tr('رسوم ')}${monthLabel(month ?? 0)}${month != null ? " — ${asStr(p['schoolYear'])}" : ""}',
                           style: ar(14, FontWeight.w600, AppColors.foreground),
                         ),
                         const SizedBox(height: 2),
@@ -404,7 +405,7 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
                     Padding(
                       padding: const EdgeInsets.only(left: 8),
                       child: AppButton(
-                        text: 'إيصال',
+                        text: tr('إيصال'),
                         variant: AppButtonVariant.ghost,
                         onPressed: () => Navigator.push(
                           context,
@@ -415,10 +416,10 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
                     ),
                   AppBadge(
                     status == 'APPROVED'
-                        ? 'موثقة'
+                        ? tr('موثقة')
                         : status == 'REJECTED'
-                            ? 'مرفوضة'
-                            : 'بانتظار التوثيق',
+                            ? tr('مرفوضة')
+                            : tr('بانتظار التوثيق'),
                     tone: _statusTone(status),
                   ),
                 ],
@@ -428,7 +429,7 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
         }),
         if (asStr(student['status']) == 'APPROVED')
           AppButton(
-            text: 'دفع شهر',
+            text: tr('دفع شهر'),
             expand: true,
             onPressed: () async {
               await Navigator.push(

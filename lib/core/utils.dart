@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:intl/intl.dart';
+
+import 'l10n.dart';
 /// School months (Oct → Jun) exactly like the web app.
 class SchoolMonth {
   final int num;
@@ -31,8 +33,16 @@ const List<String> days = [
   'السبت',
 ];
 
-String monthLabel(int num) =>
-    schoolMonths.firstWhere((m) => m.num == num, orElse: () => SchoolMonth(num, '$num')).label;
+String monthLabel(int num) {
+  final m = schoolMonths.firstWhere((m) => m.num == num, orElse: () => SchoolMonth(num, '$num'));
+  return tr(m.label);
+}
+
+/// Localized weekday name for timetable headers.
+String dayLabel(int index) {
+  if (index < 0 || index >= days.length) return '—';
+  return tr(days[index]);
+}
 
 /// e.g. "2026-2027" — year starts on October 1st.
 String currentSchoolYear() {
@@ -60,12 +70,12 @@ String formatNumber(num n) => _frNumber.format(n);
 
 String formatArabicDate(dynamic value) {
   final d = value is DateTime ? value : DateTime.parse(value.toString());
-  return DateFormat('d MMMM y', 'ar').format(d);
+  return DateFormat('d MMMM y', isFr ? 'fr' : 'ar').format(d);
 }
 
 String formatArabicDateTime(dynamic value) {
   final d = value is DateTime ? value : DateTime.parse(value.toString());
-  return DateFormat('d MMMM y — HH:mm', 'ar').format(d);
+  return DateFormat('d MMMM y — HH:mm', isFr ? 'fr' : 'ar').format(d);
 }
 
 // ---- JSON helpers (API returns loosely-typed maps) ----

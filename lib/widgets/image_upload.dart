@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:image/image.dart' as img;
 import 'package:image_picker/image_picker.dart';
 
+import '../core/l10n.dart';
 import '../core/theme.dart';
 
 class ImageUpload extends StatefulWidget {
@@ -39,7 +40,7 @@ class _ImageUploadState extends State<ImageUpload> {
     } catch (_) {
       setState(() {
         _busy = false;
-        _error = 'تعذر ضغط الصورة';
+        _error = tr('تعذر ضغط الصورة');
       });
     }
   }
@@ -75,7 +76,7 @@ class _ImageUploadState extends State<ImageUpload> {
           children: [
             ListTile(
               leading: const Icon(Icons.photo_library_outlined, color: AppColors.accent),
-              title: Text('اختيار من المعرض', style: ar(14, FontWeight.w500, AppColors.foreground)),
+              title: Text(tr('اختيار من المعرض'), style: ar(14, FontWeight.w500, AppColors.foreground)),
               onTap: () {
                 Navigator.pop(context);
                 _pick(ImageSource.gallery);
@@ -83,7 +84,7 @@ class _ImageUploadState extends State<ImageUpload> {
             ),
             ListTile(
               leading: const Icon(Icons.photo_camera_outlined, color: AppColors.accent),
-              title: Text('التقاط صورة', style: ar(14, FontWeight.w500, AppColors.foreground)),
+              title: Text(tr('التقاط صورة'), style: ar(14, FontWeight.w500, AppColors.foreground)),
               onTap: () {
                 Navigator.pop(context);
                 _pick(ImageSource.camera);
@@ -100,7 +101,7 @@ class _ImageUploadState extends State<ImageUpload> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(widget.label, style: ar(14, FontWeight.w500, AppColors.zinc700)),
+        Text(tr(widget.label), style: ar(14, FontWeight.w500, AppColors.zinc700)),
         const SizedBox(height: 6),
         if (_base64 != null)
           Stack(
@@ -154,9 +155,9 @@ class _ImageUploadState extends State<ImageUpload> {
                 children: [
                   const Icon(Icons.cloud_upload_outlined, size: 28, color: AppColors.zinc500),
                   const SizedBox(height: 8),
-                  Text(_busy ? 'جارٍ الضغط...' : 'اضغط لرفع الصورة', style: ar(14, FontWeight.w500, AppColors.zinc500)),
+                  Text(_busy ? tr('جارٍ الضغط...') : tr('اضغط لرفع الصورة'), style: ar(14, FontWeight.w500, AppColors.zinc500)),
                   const SizedBox(height: 4),
-                  Text('تُضغط الصورة تلقائيًا قبل الرفع', style: ar(12, FontWeight.w400, AppColors.zinc400)),
+                  Text(tr('تُضغط الصورة تلقائيًا قبل الرفع'), style: ar(12, FontWeight.w400, AppColors.zinc400)),
                 ],
               ),
             ),

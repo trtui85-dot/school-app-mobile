@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../core/api_client.dart';
+import '../../core/l10n.dart';
 import '../../core/theme.dart';
 import '../../core/utils.dart';
 import '../../widgets/toast.dart';
@@ -54,11 +55,11 @@ class NotificationsScreenState extends State<NotificationsScreen> {
         children: [
           Row(
             children: [
-              Text('الإشعارات', style: AppText.h1),
+              Text(tr('الإشعارات'), style: AppText.h1),
               const Spacer(),
               if ((_items ?? []).any((n) => n['readAt'] == null))
                 AppButton(
-                  text: 'تعليم الكل كمقروء',
+                  text: tr('تعليم الكل كمقروء'),
                   variant: AppButtonVariant.ghost,
                   onPressed: _markAll,
                 ),
@@ -68,7 +69,7 @@ class NotificationsScreenState extends State<NotificationsScreen> {
           if (_items == null)
             const AppSpinner()
           else if (_items!.isEmpty)
-            AppCard(child: const AppEmpty(title: 'لا توجد إشعارات', hint: 'ستصلك هنا نتائج الطلبات والدفعات والرسائل'))
+            AppCard(child: AppEmpty(title: tr('لا توجد إشعارات'), hint: tr('ستصلك هنا نتائج الطلبات والدفعات والرسائل')))
           else
             ..._items!.map((n) {
               final unread = n['readAt'] == null;

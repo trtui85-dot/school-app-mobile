@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../core/l10n.dart';
 import '../core/theme.dart';
 import '../core/utils.dart';
 
@@ -38,7 +39,7 @@ class SectionsPicker extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: ar(14, FontWeight.w500, AppColors.zinc700)),
+        Text(tr(label), style: ar(14, FontWeight.w500, AppColors.zinc700)),
         const SizedBox(height: 6),
         GestureDetector(
           onTap: () => _open(context),
@@ -54,14 +55,14 @@ class SectionsPicker extends StatelessWidget {
               children: [
                 Expanded(
                   child: selected == null
-                      ? Text('— اختر القسم —', style: ar(14, FontWeight.w400, AppColors.zinc400))
+                      ? Text(tr('— اختر القسم —'), style: ar(14, FontWeight.w400, AppColors.zinc400))
                       : Wrap(
                           crossAxisAlignment: WrapCrossAlignment.center,
                           spacing: 8,
                           children: [
                             Text(selected.name, style: ar(14, FontWeight.w600, AppColors.foreground)),
-                            Text('تسجيل ${formatMoney(selected.registrationFee)}', style: mono(12, FontWeight.w400, AppColors.accent)),
-                            Text('شهري ${formatMoney(selected.monthlyFee)}', style: mono(12, FontWeight.w400, AppColors.zinc500)),
+                            Text('${tr('تسجيل ')}${formatMoney(selected.registrationFee)}', style: mono(12, FontWeight.w400, AppColors.accent)),
+                            Text('${tr('شهري ')}${formatMoney(selected.monthlyFee)}', style: mono(12, FontWeight.w400, AppColors.zinc500)),
                           ],
                         ),
                 ),
@@ -93,7 +94,7 @@ class SectionsPicker extends StatelessWidget {
                 children: [
                   const Icon(Icons.school_outlined, size: 18, color: AppColors.accent),
                   const SizedBox(width: 8),
-                  Text('اختر القسم', style: AppText.title),
+                  Text(tr('اختر القسم'), style: AppText.title),
                   const Spacer(),
                   IconButton(
                     icon: const Icon(Icons.close, color: AppColors.zinc500),
@@ -103,7 +104,7 @@ class SectionsPicker extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               if (sections.isEmpty)
-                const Padding(padding: EdgeInsets.all(24), child: Text('لا توجد أقسام بعد', textAlign: TextAlign.center))
+                Padding(padding: const EdgeInsets.all(24), child: Text(tr('لا توجد أقسام بعد'), textAlign: TextAlign.center))
               else
                 Flexible(
                   child: ListView.separated(
@@ -136,9 +137,9 @@ class SectionsPicker extends StatelessWidget {
                                     Wrap(
                                       spacing: 12,
                                       children: [
-                                        Text('رسوم التسجيل: ${formatMoney(s.registrationFee)}',
+                                        Text('${tr('رسوم التسجيل: ')}${formatMoney(s.registrationFee)}',
                                             style: ar(12, FontWeight.w400, AppColors.accent)),
-                                        Text('الرسوم الشهرية: ${formatMoney(s.monthlyFee)}',
+                                        Text('${tr('الرسوم الشهرية: ')}${formatMoney(s.monthlyFee)}',
                                             style: ar(12, FontWeight.w400, AppColors.zinc600)),
                                       ],
                                     ),

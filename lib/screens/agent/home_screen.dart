@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../core/api_client.dart';
+import '../../core/l10n.dart';
 import '../../core/theme.dart';
 import '../../core/utils.dart';
 import '../../widgets/ads_carousel.dart';
@@ -49,7 +50,7 @@ class HomeScreenState extends State<HomeScreen> {
         children: [
           const AdsCarousel(),
           const SizedBox(height: 20),
-          Text('أبنائي', style: AppText.h1),
+          Text(tr('أبنائي'), style: AppText.h1),
           const SizedBox(height: 16),
           if (_error.isNotEmpty) ...[
             ErrorBox(_error, onRetry: reload),
@@ -58,14 +59,14 @@ class HomeScreenState extends State<HomeScreen> {
           if (_students == null)
             const AppSpinner()
           else if (_students!.isEmpty && _error.isEmpty)
-            AppCard(child: const AppEmpty(title: 'لا يوجد لديك تلاميذ مسجَّلون بعد', hint: 'ابدأ التسجيل لتتمكن من متابعة أطفالك'))
+            AppCard(child: AppEmpty(title: tr('لا يوجد لديك تلاميذ مسجَّلون بعد'), hint: tr('ابدأ التسجيل لتتمكن من متابعة أطفالك')))
           else
             ..._students!.map((s) => Padding(
                   padding: const EdgeInsets.only(bottom: 12),
                   child: _studentCard(s),
                 )),
           const SizedBox(height: 8),
-          AppButton(text: 'تسجيل طفل جديد', expand: true, onPressed: widget.onOpenRegister),
+          AppButton(text: tr('تسجيل طفل جديد'), expand: true, onPressed: widget.onOpenRegister),
         ],
       ),
     );
@@ -81,13 +82,13 @@ class HomeScreenState extends State<HomeScreen> {
     String statusLabel;
     if (status == 'APPROVED') {
       tone = BadgeTone.ok;
-      statusLabel = 'مقبول';
+      statusLabel = tr('مقبول');
     } else if (status == 'REJECTED') {
       tone = BadgeTone.bad;
-      statusLabel = 'مرفوض';
+      statusLabel = tr('مرفوض');
     } else {
       tone = BadgeTone.pending;
-      statusLabel = 'بانتظار التوثيق';
+      statusLabel = tr('بانتظار التوثيق');
     }
 
     return GestureDetector(
@@ -126,7 +127,7 @@ class HomeScreenState extends State<HomeScreen> {
                     children: [
                       Flexible(
                         child: Text(
-                          section == null ? 'بدون قسم' : asStr(section['name']),
+                          section == null ? tr('بدون قسم') : asStr(section['name']),
                           overflow: TextOverflow.ellipsis,
                           style: ar(12, FontWeight.w400, AppColors.zinc500),
                         ),
@@ -139,7 +140,7 @@ class HomeScreenState extends State<HomeScreen> {
                             color: AppColors.zinc100,
                             borderRadius: BorderRadius.circular(6),
                           ),
-                          child: Text('رقم النداء: $attendance', style: mono(11, FontWeight.w400, AppColors.zinc600)),
+                          child: Text('${tr('رقم النداء: ')}$attendance', style: mono(11, FontWeight.w400, AppColors.zinc600)),
                         ),
                       ],
                     ],
@@ -147,7 +148,7 @@ class HomeScreenState extends State<HomeScreen> {
                   if (status == 'REJECTED' && rejection != null)
                     Padding(
                       padding: const EdgeInsets.only(top: 4),
-                      child: Text('السبب: $rejection', style: ar(11, FontWeight.w400, AppColors.bad)),
+                      child: Text('${tr('السبب: ')}$rejection', style: ar(11, FontWeight.w400, AppColors.bad)),
                     ),
                 ],
               ),

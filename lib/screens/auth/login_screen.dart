@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/api_client.dart';
+import '../../core/l10n.dart';
 import '../../core/session.dart';
 import '../../core/theme.dart';
 import '../../widgets/logo.dart';
+import '../../widgets/language_toggle.dart';
 import '../../widgets/ui.dart';
 import 'signup_screen.dart';
 
@@ -30,8 +32,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Future<void> _submit() async {
     setState(() => _error = '');
-    if (_identifier.text.trim().isEmpty) return setState(() => _error = 'املأ رقم الهاتف');
-    if (_password.text.isEmpty) return setState(() => _error = 'املأ كلمة المرور');
+    if (_identifier.text.trim().isEmpty) return setState(() => _error = tr('املأ رقم الهاتف'));
+    if (_password.text.isEmpty) return setState(() => _error = tr('املأ كلمة المرور'));
     setState(() => _loading = true);
     try {
       await context.read<SessionManager>().login(_identifier.text.trim(), _password.text);
@@ -56,18 +58,23 @@ class _LoginScreenState extends State<LoginScreen> {
               constraints: const BoxConstraints(maxWidth: 420),
               child: Column(
                 children: [
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: LanguageToggle(),
+                  ),
+                  const SizedBox(height: 12),
                   const AppLogo(size: 72, withName: false),
                   const SizedBox(height: 20),
-                  Text('تسجيل الدخول', style: ar(22, FontWeight.w700, AppColors.foreground)),
+                  Text(tr('تسجيل الدخول'), style: ar(22, FontWeight.w700, AppColors.foreground)),
                   const SizedBox(height: 8),
                   Text(
-                    'مرحبًا بك — سيُوجَّهك التطبيق تلقائيًا إلى لوحتك',
+                    tr('مرحبًا بك — سيُوجَّهك التطبيق تلقائيًا إلى لوحتك'),
                     textAlign: TextAlign.center,
                     style: ar(13, FontWeight.w400, AppColors.zinc500),
                   ),
                   const SizedBox(height: 28),
                   AppInput(
-                    label: 'رقم الهاتف',
+                    label: tr('رقم الهاتف'),
                     hint: 'XXXXXXXX',
                     controller: _identifier,
                     ltr: true,
@@ -77,7 +84,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   const SizedBox(height: 16),
                   AppInput(
-                    label: 'كلمة المرور',
+                    label: tr('كلمة المرور'),
                     hint: '••••••',
                     controller: _password,
                     obscureText: _obscure,
@@ -92,18 +99,18 @@ class _LoginScreenState extends State<LoginScreen> {
                     ErrorBox(_error),
                   ],
                   const SizedBox(height: 20),
-                  AppButton(text: 'تسجيل الدخول', expand: true, loading: _loading, onPressed: _submit),
+                  AppButton(text: tr('تسجيل الدخول'), expand: true, loading: _loading, onPressed: _submit),
                   const SizedBox(height: 20),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text('ليس لديك حساب (ولي أمر)؟ ', style: ar(13, FontWeight.w400, AppColors.zinc500)),
+                      Text(tr('ليس لديك حساب (ولي أمر)؟ '), style: ar(13, FontWeight.w400, AppColors.zinc500)),
                       GestureDetector(
                         onTap: () => Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(builder: (_) => const SignupScreen()),
                         ),
-                        child: Text('أنشئ حسابًا جديدًا', style: ar(13, FontWeight.w600, AppColors.accent)),
+                        child: Text(tr('أنشئ حسابًا جديدًا'), style: ar(13, FontWeight.w600, AppColors.accent)),
                       ),
                     ],
                   ),

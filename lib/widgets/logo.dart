@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../core/l10n.dart';
 import '../core/theme.dart';
 
 class AppLogo extends StatelessWidget {
@@ -22,8 +23,8 @@ class AppLogo extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text('مدارس اقرأ', style: ar(16, FontWeight.w700, AppColors.foreground)),
-              Text('الحديثة', style: ar(12, FontWeight.w500, AppColors.zinc500)),
+              Text(tr('مدارس اقرأ'), style: ar(16, FontWeight.w700, AppColors.foreground)),
+              Text(tr('الحديثة'), style: ar(12, FontWeight.w500, AppColors.zinc500)),
             ],
           ),
         ],

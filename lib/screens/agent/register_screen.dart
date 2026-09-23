@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../core/api_client.dart';
+import '../../core/l10n.dart';
 import '../../core/theme.dart';
 import '../../core/utils.dart';
 import '../../widgets/image_upload.dart';
@@ -87,11 +88,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   Future<void> _submit() async {
     setState(() => _error = '');
-    if (_sectionId == null) return setState(() => _error = 'اختر القسم المطلوب');
+    if (_sectionId == null) return setState(() => _error = tr('اختر القسم المطلوب'));
     if (_arabicFirst.text.trim().length < 2 || _arabicLast.text.trim().length < 2) {
-      return setState(() => _error = 'الاسم واللقب بالعربية مطلوبان');
+      return setState(() => _error = tr('الاسم واللقب بالعربية مطلوبان'));
     }
-    if (_proof == null) return setState(() => _error = 'صورة إثبات دفع رسوم التسجيل مطلوبة');
+    if (_proof == null) return setState(() => _error = tr('صورة إثبات دفع رسوم التسجيل مطلوبة'));
     setState(() => _submitting = true);
     try {
       await ApiClient.instance.post('/api/me/students', body: {
@@ -119,9 +120,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
   Widget build(BuildContext context) {
     if (_done) {
       return SuccessScreen(
-        title: 'تم إرسال طلب التسجيل',
-        description: 'تم إرسال طلب تسجيل التلميذ بنجاح، وستوثّقه الإدارة في أقرب وقت. ستتوصل بإشعار فور البتّ فيه.',
-        doneLabel: 'العودة إلى الرئيسية',
+        title: tr('تم إرسال طلب التسجيل'),
+        description: tr('تم إرسال طلب تسجيل التلميذ بنجاح، وستوثّقه الإدارة في أقرب وقت. ستتوصل بإشعار فور البتّ فيه.'),
+        doneLabel: tr('العودة إلى الرئيسية'),
         onDone: () {
           _reset();
           widget.onDone();
@@ -134,7 +135,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        Text('تسجيل طفل جديد', style: AppText.h1),
+        Text(tr('تسجيل طفل جديد'), style: AppText.h1),
         const SizedBox(height: 16),
         AppCard(
           child: Column(
@@ -147,7 +148,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   children: [
                     const Icon(Icons.account_balance_outlined, size: 16, color: AppColors.accent),
                     const SizedBox(width: 6),
-                    Text('حسابات المدرسة للتحويل', style: ar(14, FontWeight.w600, AppColors.zinc700)),
+                    Text(tr('حسابات المدرسة للتحويل'), style: ar(14, FontWeight.w600, AppColors.zinc700)),
                   ],
                 ),
                 const SizedBox(height: 8),
@@ -161,12 +162,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('بيانات التلميذ', style: ar(14, FontWeight.w700, AppColors.zinc700)),
+              Text(tr('بيانات التلميذ'), style: ar(14, FontWeight.w700, AppColors.zinc700)),
               const SizedBox(height: 12),
               Row(children: [
-                Expanded(child: AppInput(label: 'الاسم (عربي)', controller: _arabicFirst)),
+                Expanded(child: AppInput(label: tr('الاسم (عربي)'), controller: _arabicFirst)),
                 const SizedBox(width: 12),
-                Expanded(child: AppInput(label: 'اللقب (عربي)', controller: _arabicLast)),
+                Expanded(child: AppInput(label: tr('اللقب (عربي)'), controller: _arabicLast)),
               ]),
               const SizedBox(height: 12),
               Row(children: [
@@ -176,13 +177,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
               ]),
               const SizedBox(height: 12),
               Row(children: [
-                Expanded(child: AppInput(label: 'رقم ريم', controller: _rim, ltr: true)),
+                Expanded(child: AppInput(label: tr('رقم ريم'), controller: _rim, ltr: true)),
                 const SizedBox(width: 12),
-                Expanded(child: AppInput(label: 'الرقم الوطني', controller: _national, ltr: true)),
+                Expanded(child: AppInput(label: tr('الرقم الوطني'), controller: _national, ltr: true)),
               ]),
               const SizedBox(height: 12),
               AppInput(
-                label: 'رقم هاتف ولي الأمر',
+                label: tr('رقم هاتف ولي الأمر'),
                 hint: 'XXXXXXXX',
                 controller: _phone,
                 ltr: true,
@@ -190,18 +191,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 maxLength: 8,
               ),
               const SizedBox(height: 12),
-              AppInput(label: 'العنوان', controller: _address),
+              AppInput(label: tr('العنوان'), controller: _address),
             ],
           ),
         ),
         const SizedBox(height: 16),
-        AppCard(child: ImageUpload(label: 'صورة إثبات دفع رسوم التسجيل', onChange: (v) => _proof = v)),
+        AppCard(child: ImageUpload(label: tr('صورة إثبات دفع رسوم التسجيل'), onChange: (v) => _proof = v)),
         if (_error.isNotEmpty) ...[
           const SizedBox(height: 12),
           ErrorBox(_error),
         ],
         const SizedBox(height: 16),
-        AppButton(text: 'إرسال طلب التسجيل', expand: true, loading: _submitting, onPressed: _submit),
+        AppButton(text: tr('إرسال طلب التسجيل'), expand: true, loading: _submitting, onPressed: _submit),
         const SizedBox(height: 24),
       ],
     );
@@ -257,7 +258,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     Icon(copied ? Icons.check : Icons.copy, size: 16, color: copied ? AppColors.ok : AppColors.accent),
                     if (!copied) ...[
                       const SizedBox(width: 4),
-                      Text('نسخ', style: ar(12, FontWeight.w600, AppColors.accent)),
+                      Text(tr('نسخ'), style: ar(12, FontWeight.w600, AppColors.accent)),
                     ],
                   ],
                 ),

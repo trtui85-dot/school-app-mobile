@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'api_client.dart';
+import 'l10n.dart';
 
 const List<String> allPermissions = [
   'overview',
@@ -90,6 +91,9 @@ class SessionManager extends ChangeNotifier {
         } catch (_) {}
       }
     }
+    if (user != null && user!.isAdmin) {
+      await LocaleManager.instance.setFr(false);
+    }
     loading = false;
     notifyListeners();
   }
@@ -115,6 +119,9 @@ class SessionManager extends ChangeNotifier {
     final u = AppUser.fromJson(Map<String, dynamic>.from(res['user'] as Map));
     ApiClient.instance.setToken(token);
     user = u;
+    if (u.isAdmin) {
+      await LocaleManager.instance.setFr(false);
+    }
     await _persist(token, u);
     notifyListeners();
     return u;

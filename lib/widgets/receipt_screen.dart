@@ -9,6 +9,7 @@ import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 
 import '../core/api_client.dart';
+import '../core/l10n.dart';
 import '../core/theme.dart';
 import '../core/utils.dart';
 import 'logo.dart';
@@ -65,9 +66,9 @@ class _ReceiptScreenState extends State<ReceiptScreen> {
       if (bytes == null) return;
       if (!await Gal.hasAccess()) await Gal.requestAccess();
       await Gal.putImageBytes(bytes, name: 'receipt-${widget.paymentId}');
-      if (mounted) showToast(context, 'تم حفظ الإيصال في المعرض');
+      if (mounted) showToast(context, tr('تم حفظ الإيصال في المعرض'));
     } catch (_) {
-      if (mounted) showToast(context, 'تعذر حفظ الصورة', type: ToastType.error);
+      if (mounted) showToast(context, tr('تعذر حفظ الصورة'), type: ToastType.error);
     } finally {
       if (mounted) setState(() => _saving = false);
     }
@@ -87,7 +88,7 @@ class _ReceiptScreenState extends State<ReceiptScreen> {
       );
       await Printing.layoutPdf(onLayout: (_) async => doc.save());
     } catch (_) {
-      if (mounted) showToast(context, 'تعذرت الطباعة', type: ToastType.error);
+      if (mounted) showToast(context, tr('تعذرت الطباعة'), type: ToastType.error);
     }
   }
 
@@ -97,7 +98,7 @@ class _ReceiptScreenState extends State<ReceiptScreen> {
       backgroundColor: AppColors.zinc100,
       appBar: AppBar(
         backgroundColor: Colors.white,
-        title: Text('إيصال الدفع', style: AppText.h2),
+        title: Text(tr('إيصال الدفع'), style: AppText.h2),
         leading: IconButton(
           icon: const Icon(Icons.close, color: AppColors.zinc700),
           onPressed: () => Navigator.pop(context),
@@ -110,13 +111,13 @@ class _ReceiptScreenState extends State<ReceiptScreen> {
                   ? const SizedBox(
                       width: 14, height: 14, child: CircularProgressIndicator(strokeWidth: 2))
                   : const Icon(Icons.download, size: 18),
-              label: Text('تحميل', style: ar(13, FontWeight.w600, AppColors.accent)),
+              label: Text(tr('تحميل'), style: ar(13, FontWeight.w600, AppColors.accent)),
             ),
           if (_payment != null)
             TextButton.icon(
               onPressed: _print,
               icon: const Icon(Icons.print, size: 18),
-              label: Text('طباعة', style: ar(13, FontWeight.w600, AppColors.accent)),
+              label: Text(tr('طباعة'), style: ar(13, FontWeight.w600, AppColors.accent)),
             ),
           const SizedBox(width: 4),
         ],
@@ -149,8 +150,8 @@ class _ReceiptScreenState extends State<ReceiptScreen> {
     final isMonthly = asStr(p['type']) == 'MONTHLY';
     final month = asIntOrNull(p['month']);
     final typeLabel = isMonthly
-        ? 'رسوم شهر ${monthLabel(month ?? 0)} (${asStr(p['schoolYear'])})'
-        : 'رسوم التسجيل';
+        ? '${tr('رسوم شهر ')}${monthLabel(month ?? 0)} (${asStr(p['schoolYear'])})'
+        : tr('رسوم التسجيل');
     final verifiedAt = asStrOrNull(p['verifiedAt']);
 
     Widget row(String label, String value, {bool useMono = false, Color? color, bool last = false}) {
@@ -194,7 +195,7 @@ class _ReceiptScreenState extends State<ReceiptScreen> {
                 children: [
                   Text(_schoolName, style: ar(22, FontWeight.w700, AppColors.foreground)),
                   const SizedBox(height: 4),
-                  Text('إيصال دفع', style: ar(14, FontWeight.w400, AppColors.foreground)),
+                  Text(tr('إيصال دفع'), style: ar(14, FontWeight.w400, AppColors.foreground)),
                 ],
               ),
               const Spacer(),
@@ -204,7 +205,7 @@ class _ReceiptScreenState extends State<ReceiptScreen> {
         ),
         const SizedBox(height: 20),
         Text(
-          'رقم الإيصال: ${asInt(p['id']).toString().padLeft(5, '0')}',
+          '${tr('رقم الإيصال: ')}${asInt(p['id']).toString().padLeft(5, '0')}',
           textAlign: TextAlign.center,
           style: mono(12, FontWeight.w400, AppColors.zinc500),
         ),
@@ -218,21 +219,21 @@ class _ReceiptScreenState extends State<ReceiptScreen> {
           ),
           child: Column(
             children: [
-              row('التلميذ',
+              row(tr('التلميذ'),
                   '${asStr(student['arabicFirstName'])} ${asStr(student['arabicLastName'])}'),
-              row('القسم', section == null ? '—' : asStr(section['name'])),
-              row('نوع الدفع', typeLabel),
-              row('المبلغ', formatMoney(asInt(p['amount'])), useMono: true),
-              row('حالة الدفع', 'موثقة', color: AppColors.ok),
-              row('تاريخ التوثيق',
+              row(tr('القسم'), section == null ? '—' : asStr(section['name'])),
+              row(tr('نوع الدفع'), typeLabel),
+              row(tr('المبلغ'), formatMoney(asInt(p['amount'])), useMono: true),
+              row(tr('حالة الدفع'), tr('موثقة'), color: AppColors.ok),
+              row(tr('تاريخ التوثيق'),
                   verifiedAt == null ? '—' : formatArabicDate(verifiedAt)),
-              row('بيان الولي', asStrOrNull(p['verifiedByName']) ?? 'الإدارة', last: true),
+              row(tr('بيان الولي'), asStrOrNull(p['verifiedByName']) ?? tr('الإدارة'), last: true),
             ],
           ),
         ),
         const SizedBox(height: 24),
         Text(
-          'شكرًا لثقتكم بـ$_schoolName',
+          '${tr('شكرًا لثقتكم بـ')}$_schoolName',
           textAlign: TextAlign.center,
           style: ar(12, FontWeight.w400, AppColors.zinc600),
         ),
@@ -244,7 +245,7 @@ class _ReceiptScreenState extends State<ReceiptScreen> {
           ),
           child: Row(
             children: [
-              Text('الختم والتوقيع', style: ar(12, FontWeight.w400, AppColors.foreground)),
+              Text(tr('الختم والتوقيع'), style: ar(12, FontWeight.w400, AppColors.foreground)),
               const Spacer(),
               Text(formatArabicDate(DateTime.now()), style: ar(12, FontWeight.w400, AppColors.foreground)),
             ],

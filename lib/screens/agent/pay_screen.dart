@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../core/api_client.dart';
+import '../../core/l10n.dart';
 import '../../core/theme.dart';
 import '../../core/utils.dart';
 import '../../widgets/image_upload.dart';
@@ -60,8 +61,8 @@ class _PayScreenState extends State<PayScreen> {
 
   Future<void> _submit() async {
     setState(() => _error = '');
-    if (_selected.isEmpty) return setState(() => _error = 'اختر شهرًا واحدًا على الأقل');
-    if (_proof == null) return setState(() => _error = 'صورة إثبات الدفع مطلوبة');
+    if (_selected.isEmpty) return setState(() => _error = tr('اختر شهرًا واحدًا على الأقل'));
+    if (_proof == null) return setState(() => _error = tr('صورة إثبات الدفع مطلوبة'));
     setState(() => _submitting = true);
     try {
       for (final month in _selected) {
@@ -87,7 +88,7 @@ class _PayScreenState extends State<PayScreen> {
       backgroundColor: AppColors.zinc50,
       appBar: AppBar(
         backgroundColor: Colors.white,
-        title: Text('دفع الرسوم الشهرية', style: AppText.h2),
+        title: Text(tr('دفع الرسوم الشهرية'), style: AppText.h2),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: AppColors.zinc700),
           onPressed: () => Navigator.pop(context),
@@ -95,10 +96,11 @@ class _PayScreenState extends State<PayScreen> {
       ),
       body: _done
           ? SuccessScreen(
-              title: 'تم إرسال طلب توثيق الدفعة',
-              description:
-                  'تم إرسال طلب توثيق الدفع للأشهر المحددة (${_selected.length}) بنجاح، وستوثّقه الإدارة في أقرب وقت. ستتوصل بإشعار فور التوثيق.',
-              doneLabel: 'العودة إلى بطاقة التلميذ',
+              title: tr('تم إرسال طلب توثيق الدفعة'),
+              description: tr('تم إرسال طلب توثيق الدفعة للأشهر المحددة ({n}) بنجاح، وستوثّقه الإدارة في أقرب وقت. ستتوصل بإشعار فور التوثيق.', {
+                'n': '${_selected.length}',
+              }),
+              doneLabel: tr('العودة إلى بطاقة التلميذ'),
               onDone: () => Navigator.pop(context),
             )
           : _loading
@@ -126,14 +128,14 @@ class _PayScreenState extends State<PayScreen> {
           style: ar(18, FontWeight.w700, AppColors.foreground),
         ),
         if (section != null)
-          Text('(${formatMoney(asInt(section['monthlyFee']))} / شهر)',
+          Text('(${formatMoney(asInt(section['monthlyFee']))} / ${tr('شهر')})',
               style: mono(12, FontWeight.w400, AppColors.zinc500)),
         const SizedBox(height: 16),
         AppCard(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('اختر الشهر (السنة ${currentSchoolYear()})',
+              Text('${tr('اختر الشهر (السنة ')}${currentSchoolYear()})',
                   style: ar(14, FontWeight.w700, AppColors.zinc700)),
               const SizedBox(height: 12),
               GridView.count(
@@ -186,7 +188,7 @@ class _PayScreenState extends State<PayScreen> {
                             const Icon(Icons.check, size: 14, color: AppColors.ok),
                             const SizedBox(width: 4),
                           ],
-                          Text(m.label, style: ar(12, FontWeight.w600, fg)),
+                          Text(tr(m.label), style: ar(12, FontWeight.w600, fg)),
                         ],
                       ),
                     ),
@@ -206,7 +208,7 @@ class _PayScreenState extends State<PayScreen> {
                   children: [
                     const Icon(Icons.account_balance_outlined, size: 16, color: AppColors.accent),
                     const SizedBox(width: 6),
-                    Text('حسابات المدرسة للتحويل',
+                    Text(tr('حسابات المدرسة للتحويل'),
                         style: ar(14, FontWeight.w600, AppColors.zinc700)),
                   ],
                 ),
@@ -217,14 +219,14 @@ class _PayScreenState extends State<PayScreen> {
           ),
         ],
         const SizedBox(height: 12),
-        AppCard(child: ImageUpload(label: 'صورة إثبات التحويل/الدفع', onChange: (v) => _proof = v)),
+        AppCard(child: ImageUpload(label: tr('صورة إثبات التحويل/الدفع'), onChange: (v) => _proof = v)),
         if (_error.isNotEmpty) ...[
           const SizedBox(height: 12),
           ErrorBox(_error),
         ],
         const SizedBox(height: 16),
         AppButton(
-          text: 'إرسال الدفعة (${_selected.length})',
+          text: '${tr('إرسال الدفعة (')}${_selected.length})',
           expand: true,
           loading: _submitting,
           onPressed: _submit,
@@ -285,7 +287,7 @@ class _PayScreenState extends State<PayScreen> {
                         size: 16, color: copied ? AppColors.ok : AppColors.accent),
                     if (!copied) ...[
                       const SizedBox(width: 4),
-                      Text('نسخ', style: ar(12, FontWeight.w600, AppColors.accent)),
+                      Text(tr('نسخ'), style: ar(12, FontWeight.w600, AppColors.accent)),
                     ],
                   ],
                 ),

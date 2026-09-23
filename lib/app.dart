@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 
+import 'core/l10n.dart';
 import 'core/session.dart';
 import 'core/theme.dart';
 import 'screens/admin/admin_shell.dart';
@@ -17,7 +18,7 @@ class SchoolApp extends StatelessWidget {
       title: 'مدارس اقرأ الحديثة',
       debugShowCheckedModeBanner: false,
       theme: buildAppTheme(),
-      locale: const Locale('ar'),
+      locale: Locale(isFr ? 'fr' : 'ar'),
       supportedLocales: const [Locale('ar'), Locale('fr'), Locale('en')],
       localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,
@@ -25,7 +26,7 @@ class SchoolApp extends StatelessWidget {
         GlobalCupertinoLocalizations.delegate,
       ],
       builder: (context, child) => Directionality(
-        textDirection: TextDirection.rtl,
+        textDirection: isFr ? TextDirection.ltr : TextDirection.rtl,
         child: child ?? const SizedBox.shrink(),
       ),
       home: const RootGate(),

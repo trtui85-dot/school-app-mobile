@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/api_client.dart';
+import '../../core/l10n.dart';
 import '../../core/session.dart';
 import '../../core/theme.dart';
 import '../../widgets/logo.dart';
+import '../../widgets/language_toggle.dart';
 import '../../widgets/ui.dart';
 
 class SignupScreen extends StatefulWidget {
@@ -33,12 +35,12 @@ class _SignupScreenState extends State<SignupScreen> {
 
   Future<void> _submit() async {
     setState(() => _error = '');
-    if (_name.text.trim().length < 2) return setState(() => _error = 'الاسم الكامل مطلوب');
+    if (_name.text.trim().length < 2) return setState(() => _error = tr('الاسم الكامل مطلوب'));
     if (!RegExp(r'^\d{8}$').hasMatch(_phone.text)) {
-      return setState(() => _error = 'رقم الهاتف يجب أن يتكون من 8 أرقام فقط');
+      return setState(() => _error = tr('رقم الهاتف يجب أن يتكون من 8 أرقام فقط'));
     }
-    if (_password.text.length < 6) return setState(() => _error = 'كلمة المرور لا تقل عن 6 محارف');
-    if (_password.text != _confirm.text) return setState(() => _error = 'كلمة المرور غير متطابقة مع التأكيد');
+    if (_password.text.length < 6) return setState(() => _error = tr('كلمة المرور لا تقل عن 6 محارف'));
+    if (_password.text != _confirm.text) return setState(() => _error = tr('كلمة المرور غير متطابقة مع التأكيد'));
     setState(() => _loading = true);
     try {
       await context.read<SessionManager>().signup(_name.text.trim(), _phone.text, _password.text);
@@ -63,16 +65,21 @@ class _SignupScreenState extends State<SignupScreen> {
               constraints: const BoxConstraints(maxWidth: 420),
               child: Column(
                 children: [
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: LanguageToggle(),
+                  ),
+                  const SizedBox(height: 12),
                   const AppLogo(size: 64, withName: false),
                   const SizedBox(height: 20),
-                  Text('إنشاء حساب', style: ar(22, FontWeight.w700, AppColors.foreground)),
+                  Text(tr('إنشاء حساب'), style: ar(22, FontWeight.w700, AppColors.foreground)),
                   const SizedBox(height: 8),
-                  Text('لتسجيل أطفالك ومتابعتهم', style: ar(13, FontWeight.w400, AppColors.zinc500)),
+                  Text(tr('لتسجيل أطفالك ومتابعتهم'), style: ar(13, FontWeight.w400, AppColors.zinc500)),
                   const SizedBox(height: 28),
-                  AppInput(label: 'الاسم الكامل', hint: 'الاسم واللقب', controller: _name),
+                  AppInput(label: tr('الاسم الكامل'), hint: tr('الاسم واللقب'), controller: _name),
                   const SizedBox(height: 16),
                   AppInput(
-                    label: 'رقم الهاتف',
+                    label: tr('رقم الهاتف'),
                     hint: 'XXXXXXXX',
                     controller: _phone,
                     ltr: true,
@@ -90,8 +97,8 @@ class _SignupScreenState extends State<SignupScreen> {
                   ),
                   const SizedBox(height: 16),
                   AppInput(
-                    label: 'كلمة المرور',
-                    hint: '6 محارف على الأقل',
+                    label: tr('كلمة المرور'),
+                    hint: tr('6 محارف على الأقل'),
                     controller: _password,
                     obscureText: _obscure,
                     suffix: IconButton(
@@ -101,8 +108,8 @@ class _SignupScreenState extends State<SignupScreen> {
                   ),
                   const SizedBox(height: 16),
                   AppInput(
-                    label: 'تأكيد كلمة المرور',
-                    hint: 'أعد كتابة كلمة المرور',
+                    label: tr('تأكيد كلمة المرور'),
+                    hint: tr('أعد كتابة كلمة المرور'),
                     controller: _confirm,
                     obscureText: _obscure,
                     onSubmitted: _submit,
@@ -112,15 +119,15 @@ class _SignupScreenState extends State<SignupScreen> {
                     ErrorBox(_error),
                   ],
                   const SizedBox(height: 20),
-                  AppButton(text: 'إنشاء حساب', expand: true, loading: _loading, onPressed: _submit),
+                  AppButton(text: tr('إنشاء حساب'), expand: true, loading: _loading, onPressed: _submit),
                   const SizedBox(height: 20),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text('لديك حساب بالفعل؟ ', style: ar(13, FontWeight.w400, AppColors.zinc500)),
+                      Text(tr('لديك حساب بالفعل؟ '), style: ar(13, FontWeight.w400, AppColors.zinc500)),
                       GestureDetector(
                         onTap: () => Navigator.pop(context),
-                        child: Text('سجّل الدخول', style: ar(13, FontWeight.w600, AppColors.accent)),
+                        child: Text(tr('سجّل الدخول'), style: ar(13, FontWeight.w600, AppColors.accent)),
                       ),
                     ],
                   ),

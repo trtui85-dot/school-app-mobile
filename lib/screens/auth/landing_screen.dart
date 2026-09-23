@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
+import '../../core/l10n.dart';
 import '../../core/theme.dart';
 import '../../widgets/logo.dart';
+import '../../widgets/language_toggle.dart';
 import '../../widgets/ui.dart';
 import 'login_screen.dart';
 import 'signup_screen.dart';
@@ -22,18 +24,23 @@ class LandingScreen extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: LanguageToggle(),
+                  ),
+                  const SizedBox(height: 12),
                   const AppLogo(size: 88, withName: false),
                   const SizedBox(height: 24),
-                  Text('مدارس اقرأ الحديثة', textAlign: TextAlign.center, style: ar(24, FontWeight.w700, AppColors.foreground)),
+                  Text(tr('مدارس اقرأ الحديثة'), textAlign: TextAlign.center, style: ar(24, FontWeight.w700, AppColors.foreground)),
                   const SizedBox(height: 12),
                   Text(
-                    'نظام متابعة التسجيل وتحصيل الرسوم والغياب والتواصل مع أولياء الأمور',
+                    tr('نظام متابعة التسجيل وتحصيل الرسوم والغياب والتواصل مع أولياء الأمور'),
                     textAlign: TextAlign.center,
                     style: ar(14, FontWeight.w400, AppColors.zinc500, height: 1.6),
                   ),
                   const SizedBox(height: 32),
                   AppButton(
-                    text: 'تسجيل الدخول',
+                    text: tr('تسجيل الدخول'),
                     expand: true,
                     onPressed: () => Navigator.push(
                       context,
@@ -42,7 +49,7 @@ class LandingScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 12),
                   AppButton(
-                    text: 'إنشاء حساب ولي أمر',
+                    text: tr('إنشاء حساب ولي أمر'),
                     variant: AppButtonVariant.outline,
                     expand: true,
                     onPressed: () => Navigator.push(
