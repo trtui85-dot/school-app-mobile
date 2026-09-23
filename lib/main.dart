@@ -17,7 +17,7 @@ void main() async {
       create: (_) => SessionManager(),
       child: ListenableBuilder(
         listenable: LocaleManager.instance,
-        builder: (_, _) => const SchoolApp(),
+        builder: (_, _) => SchoolApp(),
       ),
     ),
   );
