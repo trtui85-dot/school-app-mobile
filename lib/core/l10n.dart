@@ -244,4 +244,37 @@ const Map<String, String> _fr = {
   'الخميس': 'Jeudi',
   'الجمعة': 'Vendredi',
   'السبت': 'Samedi',
+
+  // ---- Terms screen ----
+  'شروط الاستخدام': "Conditions d'utilisation",
+  'آخر تحديث: سبتمبر 2026 — مدارس اقرأ الحديثة':
+      'Dernière mise à jour : septembre 2026 — Écoles Iqra Modernes',
+  '1. قبول الشروط': "1. Acceptation des conditions",
+  'باستخدامك تطبيق «مدارس اقرأ الحديثة» فإنك توافق على هذه الشروط. إذا كنت لا توافق عليها يُرجى عدم استخدام التطبيق.':
+      "En utilisant l'application « Écoles Iqra Modernes », vous acceptez les présentes conditions. Si vous ne les acceptez pas, merci de ne pas utiliser l'application.",
+  '2. الغرض من الخدمة': "2. Objet du service",
+  'يقدم التطبيق خدمة المتابعة المدرسية لأولياء الأمور وأبنائهم المسجلين، مع إدارة التسجيلات والدفعات والحضور والتواصل المدرسي. الاستخدام مخصص للأغراض التعليمية فقط.':
+      "L'application fournit un service de suivi scolaire aux parents et à leurs enfants inscrits, avec la gestion des inscriptions, des paiements, des présences et de la communication scolaire. L'utilisation est réservée à des fins exclusivement éducatives.",
+  '3. مسؤولية المستخدم': "3. Responsabilité de l'utilisateur",
+  'تقديم معلومات صحيحة وحديثة عند إنشاء الحساب وتسجيل البيانات.':
+      "Fournir des informations exactes et à jour lors de la création du compte et de l'enregistrement des données.",
+  'الحفاظ على سرية كلمة المرور وعدم مشاركتها مع الآخرين.':
+      "Préserver la confidentialité du mot de passe et ne pas le partager avec d'autres.",
+  'استخدام التطبيق بشكل قانوني وعدم محاولة الوصول غير المصرح به للأنظمة.':
+      "Utiliser l'application de manière conforme à la loi et ne pas tenter d'accès non autorisé aux systèmes.",
+  '4. الدفعات المدرسية': "4. Paiements scolaires",
+  'تُعالج الدفعات يدويًا بين ولي الأمر وإدارة المدرسة، وتُوثق عبر التطبيق. التطبيق أداة مساعدة للتوثيق ولا يعتبر قناة دفع إليكترونية مستقلة.':
+      "Les paiements sont traités manuellement entre le parent et l'administration de l'école, et sont validés via l'application. L'application est un outil d'aide à la validation et ne constitue pas un canal de paiement électronique indépendant.",
+  '5. حقوق الملكية': "5. Droits de propriété",
+  'جميع محتويات التطبيق واسمه وشعاره محمية حقوق ملكية لمدارس اقرأ الحديثة ولا يجوز استخدامها دون إذن مسبق.':
+      "Tous les contenus de l'application, son nom et son logo sont protégés par les droits de propriété des Écoles Iqra Modernes et ne peuvent être utilisés sans autorisation préalable.",
+  '6. حدود المسؤولية': "6. Limitation de responsabilité",
+  'تُبذل جهود معقولة لضمان استمرارية الخدمة، لكن لا نضمن خلوّها من الانقطاع. لا نتحمل مسؤولية الأضرار الناتجة عن الاستخدام غير السليم أو انقطاع الخدمة المؤقت.':
+      "Des efforts raisonnables sont déployés pour assurer la continuité du service, mais nous ne garantissons pas son absence d'interruption. Nous déclinons toute responsabilité pour les dommages résultant d'une mauvaise utilisation ou d'une interruption temporaire du service.",
+  '7. إلغاء الحساب': "7. Annulation du compte",
+  'يحق لولي الأمر طلب إلغاء حسابه، ولإدارة المدرسة تعليق أي حساب يخالف هذه الشروط أو يستخدم الخدمة بشكل مخالف.':
+      "Le parent peut demander la suppression de son compte, et l'administration de l'école peut suspendre tout compte qui enfreint ces conditions ou utilise le service de manière abusive.",
+  '8. التواصل': "8. Contact",
+  'لأي استفسار حول هذه الشروط يرجى التواصل مع إدارة مدارس اقرأ الحديثة.':
+      "Pour toute question concernant ces conditions, veuillez contacter l'administration des Écoles Iqra Modernes.",
 };

@@ -7,6 +7,7 @@ import '../../widgets/language_toggle.dart';
 import '../../widgets/ui.dart';
 import 'login_screen.dart';
 import 'signup_screen.dart';
+import 'terms_screen.dart';
 
 class LandingScreen extends StatelessWidget {
   const LandingScreen({super.key});
@@ -57,6 +58,17 @@ class LandingScreen extends StatelessWidget {
                       onPressed: () => Navigator.push(
                         context,
                         MaterialPageRoute(builder: (_) => const SignupScreen()),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    TextButton(
+                      onPressed: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const TermsScreen()),
+                      ),
+                      child: Text(
+                        tr('شروط الاستخدام'),
+                        style: ar(13, FontWeight.w600, AppColors.accent),
                       ),
                     ),
                   ],
