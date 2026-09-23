@@ -48,6 +48,7 @@ const Map<String, String> _fr = {
   'مدارس اقرأ الحديثة': 'Écoles Iqra Modernes',
   'مدارس اقرأ': 'Écoles Iqra',
   'الحديثة': 'Modernes',
+  'مجمع مدارس اقرأ': 'Complexe Scolaire Iqra',
   'نظام متابعة التسجيل وتحصيل الرسوم والغياب والتواصل مع أولياء الأمور':
       "Suivez les inscriptions, les paiements et les absences, et restez en contact avec l'administration",
   'تسجيل الدخول': 'Connexion',
