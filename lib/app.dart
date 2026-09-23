@@ -15,6 +15,7 @@ class SchoolApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      key: ValueKey(isFr ? 'fr' : 'ar'),
       title: 'مدارس اقرأ الحديثة',
       debugShowCheckedModeBanner: false,
       theme: buildAppTheme(),
