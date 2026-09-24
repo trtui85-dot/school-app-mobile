@@ -18,19 +18,25 @@ class _AbsencesScreenState extends State<AbsencesScreen> {
   DateTime _date = DateTime.now();
   List<Map<String, dynamic>>? _students;
   final Set<int> _absent = {};
-  final _quickCtrl = TextEditingController();
+  final Set<int> _addedNumbers = {};
+  final _numCtrl = TextEditingController();
+  final _timeCtrl = TextEditingController();
+  final _noteCtrl = TextEditingController();
   String _msg = '';
   bool _submitting = false;
 
   @override
   void initState() {
     super.initState();
+    _timeCtrl.text = DateTime.now().hour.toString();
     _loadSections();
   }
 
   @override
   void dispose() {
-    _quickCtrl.dispose();
+    _numCtrl.dispose();
+    _timeCtrl.dispose();
+    _noteCtrl.dispose();
     super.dispose();
   }
 
@@ -49,6 +55,7 @@ class _AbsencesScreenState extends State<AbsencesScreen> {
     setState(() {
       _students = null;
       _absent.clear();
+      _addedNumbers.clear();
       _msg = '';
     });
     try {
@@ -74,23 +81,31 @@ class _AbsencesScreenState extends State<AbsencesScreen> {
     }
   }
 
-  void _applyQuick() {
-    final numbers = _quickCtrl.text
-        .split(RegExp(r'[,\s]+'))
-        .where((s) => s.trim().isNotEmpty)
-        .map((s) => int.tryParse(s.trim()))
-        .whereType<int>()
-        .toSet();
-    if (numbers.isEmpty) return;
+  void _addNumber() {
+    final n = int.tryParse(_numCtrl.text.trim());
+    if (n == null) return;
+    final ids = (_students ?? [])
+        .where((st) => asIntOrNull(st['attendanceNumber']) == n)
+        .map((st) => asInt(st['id']))
+        .toList();
+    if (ids.isEmpty) {
+      showToast(context, 'لا يوجد تلميذ برقم النداء $n في هذا القسم', type: ToastType.error);
+      return;
+    }
     setState(() {
+      _addedNumbers.add(n);
+      _absent.addAll(ids);
+    });
+    _numCtrl.clear();
+  }
+
+  void _removeNumber(int n) {
+    setState(() {
+      _addedNumbers.remove(n);
       for (final st in _students ?? []) {
-        final num = asIntOrNull(st['attendanceNumber']);
-        if (num != null && numbers.contains(num)) {
-          _absent.add(asInt(st['id']));
-        }
+        if (asIntOrNull(st['attendanceNumber']) == n) _absent.remove(asInt(st['id']));
       }
     });
-    _quickCtrl.clear();
   }
 
   Future<void> _submit() async {
@@ -104,6 +119,8 @@ class _AbsencesScreenState extends State<AbsencesScreen> {
         'sectionId': _sectionId,
         'date': formatDateISO(_date),
         'absentStudentIds': _absent.toList(),
+        'time': int.tryParse(_timeCtrl.text.trim()) ?? DateTime.now().hour,
+        'note': _noteCtrl.text.trim().isEmpty ? null : _noteCtrl.text.trim(),
       });
       final count = asInt(d['count']);
       if (!mounted) return;
@@ -193,15 +210,72 @@ class _AbsencesScreenState extends State<AbsencesScreen> {
                   children: [
                     Expanded(
                       child: AppInput(
-                        hint: 'أرقام نداء الغائبين مفصولة بفواصل: 3,7,12',
-                        controller: _quickCtrl,
+                        hint: 'رقم نداء أول غائب',
+                        controller: _numCtrl,
                         ltr: true,
-                        onSubmitted: _applyQuick,
+                        number: true,
+                        onSubmitted: _addNumber,
                       ),
                     ),
                     const SizedBox(width: 8),
-                    AppButton(text: 'تطبيق', variant: AppButtonVariant.outline, onPressed: _applyQuick),
+                    AppButton(text: 'إضافة', onPressed: _addNumber),
                   ],
+                ),
+                if (_addedNumbers.isNotEmpty) ...[
+                  const SizedBox(height: 8),
+                  Text('أرقام نداء الغائبين المضافة:', style: AppText.tiny),
+                  const SizedBox(height: 6),
+                  Wrap(
+                    spacing: 6,
+                    runSpacing: 6,
+                    children: [
+                      for (final n in (_addedNumbers.toList()..sort()))
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: AppColors.badSoft,
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: AppColors.bad.withValues(alpha: 0.3)),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text('$n', style: mono(12, FontWeight.w600, AppColors.bad)),
+                              const SizedBox(width: 2),
+                              GestureDetector(
+                                onTap: () => _removeNumber(n),
+                                child: const Icon(Icons.close, size: 14, color: AppColors.bad),
+                              ),
+                            ],
+                          ),
+                        ),
+                    ],
+                  ),
+                ],
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    Expanded(
+                      child: AppInput(
+                        label: 'الساعة (0-23)',
+                        hint: 'ساعة تسجيل الغياب — دون الدقائق',
+                        controller: _timeCtrl,
+                        ltr: true,
+                        number: true,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'سوف يُرسل للولي: غياب ابنك يوم ${_date.day}/${_date.month}/${_date.year} في الساعة ${_timeCtrl.text.trim().isEmpty ? "؟" : _timeCtrl.text.trim()}',
+                  style: ar(12, FontWeight.w400, AppColors.zinc500),
+                ),
+                const SizedBox(height: 12),
+                AppInput(
+                  label: 'ملاحظات (اختياري)',
+                  hint: 'مثال: اسم الحصة',
+                  controller: _noteCtrl,
                 ),
                 const SizedBox(height: 12),
                 ConstrainedBox(

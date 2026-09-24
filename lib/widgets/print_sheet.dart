@@ -43,11 +43,13 @@ class _PrintSheetScreenState extends State<PrintSheetScreen> {
   }
 
   Future<List<Uint8List?>> _captureAll() async {
+    // Capture at the exact A4 pixel ratio so pages never stretch or elongate.
+    final pixelRatio = PdfPageFormat.a4.width / printPageWidth;
     final out = <Uint8List?>[];
     for (final key in _keys) {
       final boundary = key.currentContext?.findRenderObject() as RenderRepaintBoundary?;
       if (boundary == null) continue;
-      final image = await boundary.toImage(pixelRatio: 3);
+      final image = await boundary.toImage(pixelRatio: pixelRatio);
       final data = await image.toByteData(format: ui.ImageByteFormat.png);
       out.add(data?.buffer.asUint8List());
     }
@@ -90,7 +92,7 @@ class _PrintSheetScreenState extends State<PrintSheetScreen> {
                 pw.MemoryImage(b),
                 width: PdfPageFormat.a4.width,
                 height: PdfPageFormat.a4.height,
-                fit: pw.BoxFit.fill,
+                fit: pw.BoxFit.contain,
               ),
             ),
           ),

@@ -390,14 +390,56 @@ class _SectionDetailScreenState extends State<SectionDetailScreen> {
 
   Future<void> _openSubjects() => _sheet(
         title: 'المواد الدراسية — ${asStr(_section!['name'])}',
-        body: _subjectsBody(),
+        body: _SubjectsEditor(
+          initial: asStrList(_section!['subjects']),
+          onSave: (subjects) => _saveSection(subjects: subjects),
+        ),
       );
 
   Future<void> _openSchedule() => _sheet(
         title: 'الجدول الزمني الأسبوعي — ${asStr(_section!['name'])}',
-        body: _scheduleBody(),
-        ratio: 0.85,
+        body: _ScheduleEditor(
+          initial: asMapList(_section!['schedule']),
+          onSave: (schedule) => _saveSection(schedule: schedule),
+        ),
+        ratio: 0.9,
       );
+
+  List<Map<String, dynamic>> _scheduleOf(Map<String, dynamic> section) =>
+      asMapList(section['schedule']).map((e) {
+        return {
+          'day': asInt(e['day']),
+          'subject': asStr(e['subject']),
+          'start': asStr(e['start']),
+          'end': asStr(e['end']),
+        };
+      }).toList();
+
+  Future<void> _saveSection({List<String>? subjects, List<Map<String, dynamic>>? schedule}) async {
+    try {
+      final d = await ApiClient.instance.put(
+        '/api/admin/sections/${widget.id}',
+        body: {
+          'name': asStr(_section!['name']),
+          'registrationFee': asInt(_section!['registrationFee']),
+          'monthlyFee': asInt(_section!['monthlyFee']),
+          'subjects': subjects ?? asStrList(_section!['subjects']),
+          'schedule': schedule ?? _scheduleOf(_section!),
+        },
+      );
+      if (!mounted) return;
+      setState(() {
+        _section = asMap(d['section']);
+      });
+      if (mounted) {
+        showToast(context, 'تم حفظ التعديلات');
+        Navigator.pop(context);
+      }
+    } on ApiException catch (e) {
+      if (mounted) showToast(context, e.message, type: ToastType.error);
+      rethrow;
+    }
+  }
 
   Future<void> _sheet({required String title, required Widget body, double ratio = 0.75}) {
     return showModalBottomSheet(
@@ -438,54 +480,6 @@ class _SectionDetailScreenState extends State<SectionDetailScreen> {
     );
   }
 
-  Widget _subjectsBody() {
-    final subjects = asStrList(_section!['subjects']);
-    if (subjects.isEmpty) return const AppEmpty(title: 'لا توجد مواد مسجلة');
-    return Align(
-      alignment: Alignment.topRight,
-      child: SingleChildScrollView(
-        child: Wrap(
-          spacing: 10,
-          runSpacing: 10,
-          children: subjects
-              .map((s) => Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                    decoration: BoxDecoration(
-                      color: AppColors.accentSoft,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Text(s, style: ar(15, FontWeight.w600, AppColors.accent)),
-                  ))
-              .toList(),
-        ),
-      ),
-    );
-  }
-
-  Widget _scheduleBody() {
-    final schedule = asMapList(_section!['schedule']);
-    if (schedule.isEmpty) return const AppEmpty(title: 'لا يوجد جدول مسجل');
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Expanded(
-          child: SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(minWidth: 560),
-              child: SingleChildScrollView(child: Timetable(schedule: schedule)),
-            ),
-          ),
-        ),
-        const SizedBox(height: 10),
-        Center(
-          child: Text('مرّر الجدول جانبيًا لعرض كل الأيام بوضوح',
-              style: AppText.tiny, textAlign: TextAlign.center),
-        ),
-      ],
-    );
-  }
-
   Widget _studentRow(Map<String, dynamic> s) {
     final agent = s['agent'] == null ? null : asMap(s['agent']);
     final status = asStr(s['status'], 'PENDING');
@@ -522,6 +516,402 @@ class _SectionDetailScreenState extends State<SectionDetailScreen> {
           ],
         ),
       ),
+    );
+  }
+}
+
+class _SubjectsEditor extends StatefulWidget {
+  final List<String> initial;
+  final Future<void> Function(List<String> subjects) onSave;
+  const _SubjectsEditor({required this.initial, required this.onSave});
+  @override
+  State<_SubjectsEditor> createState() => _SubjectsEditorState();
+}
+
+class _SubjectsEditorState extends State<_SubjectsEditor> {
+  late final List<String> _subjects = [...widget.initial];
+  final _addCtrl = TextEditingController();
+  final _editCtrl = TextEditingController();
+  int _editIndex = -1;
+  bool _saving = false;
+
+  @override
+  void dispose() {
+    _addCtrl.dispose();
+    _editCtrl.dispose();
+    super.dispose();
+  }
+
+  void _add() {
+    final t = _addCtrl.text.trim();
+    if (t.isEmpty || _subjects.contains(t)) return;
+    setState(() => _subjects.add(t));
+    _addCtrl.clear();
+  }
+
+  void _startEdit(int i) {
+    setState(() {
+      _editIndex = i;
+      _editCtrl.text = _subjects[i];
+    });
+  }
+
+  void _endEdit() {
+    final t = _editCtrl.text.trim();
+    if (t.isNotEmpty && _editIndex >= 0) {
+      setState(() => _subjects[_editIndex] = t);
+    }
+    setState(() => _editIndex = -1);
+  }
+
+  Future<void> _save() async {
+    setState(() => _saving = true);
+    try {
+      await widget.onSave(_subjects);
+    } catch (_) {
+    } finally {
+      if (mounted) setState(() => _saving = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: AppInput(
+                  hint: 'اسم المادة — مثال: الرياضيات',
+                  controller: _addCtrl,
+                  onSubmitted: _add,
+                ),
+              ),
+              const SizedBox(width: 8),
+              AppButton(text: 'إضافة', onPressed: _add),
+            ],
+          ),
+          const SizedBox(height: 12),
+          if (_subjects.isEmpty)
+            const AppEmpty(title: 'لا توجد مواد مسجلة', hint: 'أضف أول مادة باستخدام الحقل أعلاه')
+          else
+            ..._subjects.asMap().entries.map((e) {
+              final i = e.key;
+              final name = e.value;
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: AppColors.accentSoft,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: _editIndex == i
+                      ? Row(
+                          children: [
+                            Expanded(
+                              child: AppInput(
+                                hint: 'اسم المادة',
+                                controller: _editCtrl,
+                                onSubmitted: _endEdit,
+                              ),
+                            ),
+                            const SizedBox(width: 6),
+                            InkWell(
+                              onTap: _endEdit,
+                              child: const Padding(
+                                padding: EdgeInsets.all(6),
+                                child: Icon(Icons.check, size: 20, color: AppColors.ok),
+                              ),
+                            ),
+                            InkWell(
+                              onTap: () => setState(() => _editIndex = -1),
+                              child: const Padding(
+                                padding: EdgeInsets.all(6),
+                                child: Icon(Icons.close, size: 20, color: AppColors.zinc400),
+                              ),
+                            ),
+                          ],
+                        )
+                      : Row(
+                          children: [
+                            Expanded(
+                              child: Text(name, style: ar(15, FontWeight.w600, AppColors.accent)),
+                            ),
+                            InkWell(
+                              onTap: () => _startEdit(i),
+                              child: const Padding(
+                                padding: EdgeInsets.all(6),
+                                child: Icon(Icons.edit_outlined, size: 18, color: AppColors.zinc500),
+                              ),
+                            ),
+                            InkWell(
+                              onTap: () => setState(() => _subjects.removeAt(i)),
+                              child: const Padding(
+                                padding: EdgeInsets.all(6),
+                                child: Icon(Icons.delete_outline, size: 18, color: AppColors.bad),
+                              ),
+                            ),
+                          ],
+                        ),
+                ),
+              );
+            }),
+          const SizedBox(height: 16),
+          AppButton(
+            text: 'حفظ تعديلات المواد',
+            expand: true,
+            loading: _saving,
+            onPressed: _save,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ScheduleEditor extends StatefulWidget {
+  final List<Map<String, dynamic>> initial;
+  final Future<void> Function(List<Map<String, dynamic>> schedule) onSave;
+  const _ScheduleEditor({required this.initial, required this.onSave});
+  @override
+  State<_ScheduleEditor> createState() => _ScheduleEditorState();
+}
+
+class _ScheduleEditorState extends State<_ScheduleEditor> {
+  late final List<Map<String, dynamic>> _schedule = [
+    for (final e in widget.initial)
+      {
+        'day': asInt(e['day']),
+        'subject': asStr(e['subject']),
+        'start': asStr(e['start']),
+        'end': asStr(e['end']),
+      }
+  ];
+  final _subjectCtrl = TextEditingController();
+  final _startCtrl = TextEditingController();
+  final _endCtrl = TextEditingController();
+  int? _day;
+  int _editIndex = -1;
+  bool _formVisible = false;
+  bool _saving = false;
+  String _formError = '';
+
+  @override
+  void dispose() {
+    _subjectCtrl.dispose();
+    _startCtrl.dispose();
+    _endCtrl.dispose();
+    super.dispose();
+  }
+
+  void _beginAdd() {
+    setState(() {
+      _formVisible = true;
+      _editIndex = -1;
+      _day = null;
+      _formError = '';
+      _subjectCtrl.clear();
+      _startCtrl.clear();
+      _endCtrl.clear();
+    });
+  }
+
+  void _beginEdit(int i) {
+    final e = _schedule[i];
+    setState(() {
+      _formVisible = true;
+      _editIndex = i;
+      _day = asIntOrNull(e['day']);
+      _formError = '';
+      _subjectCtrl.text = asStr(e['subject']);
+      _startCtrl.text = asStr(e['start']);
+      _endCtrl.text = asStr(e['end']);
+    });
+  }
+
+  bool _validTime(String t) => RegExp(r'^\d{1,2}:\d{2}$').hasMatch(t);
+
+  void _submitForm() {
+    final subject = _subjectCtrl.text.trim();
+    final start = _startCtrl.text.trim();
+    final end = _endCtrl.text.trim();
+    if (_day == null) return setState(() => _formError = 'اختر اليوم');
+    if (subject.isEmpty) return setState(() => _formError = 'اسم المادة مطلوب');
+    if (!_validTime(start) || !_validTime(end)) {
+      return setState(() => _formError = 'الوقت بصيغة HH:MM — مثال 08:00');
+    }
+    final entry = {'day': _day, 'subject': subject, 'start': start, 'end': end};
+    setState(() {
+      if (_editIndex >= 0) {
+        _schedule[_editIndex] = entry;
+      } else {
+        _schedule.add(entry);
+      }
+      _formVisible = false;
+      _editIndex = -1;
+      _formError = '';
+      _subjectCtrl.clear();
+      _startCtrl.clear();
+      _endCtrl.clear();
+    });
+  }
+
+  Future<void> _save() async {
+    setState(() => _saving = true);
+    try {
+      final clean = [
+        for (final e in _schedule)
+          if (asStr(e['subject']).isNotEmpty)
+            {
+              'day': asInt(e['day']),
+              'subject': asStr(e['subject']),
+              'start': asStr(e['start']),
+              'end': asStr(e['end']),
+            }
+      ];
+      await widget.onSave(clean);
+    } catch (_) {
+    } finally {
+      if (mounted) setState(() => _saving = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Expanded(
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                if (_schedule.isNotEmpty)
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(minWidth: 560),
+                      child: Timetable(schedule: _schedule),
+                    ),
+                  )
+                else
+                  const AppEmpty(title: 'لا يوجد جدول مسجل', hint: 'أضف أول حصة بالزر أدناه'),
+                const SizedBox(height: 12),
+                if (_formVisible) ...[
+                  AppSelectField<int>(
+                    label: 'اليوم',
+                    placeholder: '— اختر اليوم —',
+                    value: _day,
+                    options: [
+                      for (var d = 1; d <= 6; d++) AppSelectOption(d, dayLabel(d)),
+                    ],
+                    onChanged: (v) => setState(() => _day = v),
+                  ),
+                  const SizedBox(height: 10),
+                  AppInput(label: 'المادة', hint: 'مثال: اللغة العربية', controller: _subjectCtrl),
+                  const SizedBox(height: 10),
+                  Row(
+                    children: [
+                      Expanded(child: AppInput(label: 'البداية', hint: '08:00', controller: _startCtrl, ltr: true)),
+                      const SizedBox(width: 10),
+                      Expanded(child: AppInput(label: 'النهاية', hint: '09:00', controller: _endCtrl, ltr: true)),
+                    ],
+                  ),
+                  if (_formError.isNotEmpty) ...[
+                    const SizedBox(height: 8),
+                    Text(_formError, style: ar(13, FontWeight.w400, AppColors.bad)),
+                  ],
+                  const SizedBox(height: 10),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: AppButton(
+                          text: _editIndex >= 0 ? 'حفظ التعديل' : 'إضافة الحصة',
+                          onPressed: _submitForm,
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: AppButton(
+                          text: 'إلغاء',
+                          variant: AppButtonVariant.outline,
+                          onPressed: () => setState(() {
+                            _formVisible = false;
+                            _editIndex = -1;
+                            _formError = '';
+                          }),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                ],
+                if (!_formVisible) ...[
+                  AppButton(
+                    text: 'إضافة حصة',
+                    variant: AppButtonVariant.outline,
+                    onPressed: _beginAdd,
+                  ),
+                  const SizedBox(height: 12),
+                ],
+                if (_schedule.isNotEmpty) ...[
+                  Text('الحصص المسجلة (${_schedule.length})', style: AppText.label),
+                  const SizedBox(height: 6),
+                  ..._schedule.asMap().entries.map((e) {
+                    final i = e.key;
+                    final entry = e.value;
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 6),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(color: AppColors.zinc200),
+                        ),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                '${dayLabel(asInt(entry['day']))} · ${asStr(entry['subject'])} — ${asStr(entry['start'])}–${asStr(entry['end'])}',
+                                style: ar(13, FontWeight.w500, AppColors.foreground),
+                              ),
+                            ),
+                            InkWell(
+                              onTap: () => _beginEdit(i),
+                              child: const Padding(
+                                padding: EdgeInsets.all(6),
+                                child: Icon(Icons.edit_outlined, size: 18, color: AppColors.zinc500),
+                              ),
+                            ),
+                            InkWell(
+                              onTap: () => setState(() => _schedule.removeAt(i)),
+                              child: const Padding(
+                                padding: EdgeInsets.all(6),
+                                child: Icon(Icons.delete_outline, size: 18, color: AppColors.bad),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  }),
+                ],
+                const SizedBox(height: 16),
+                AppButton(
+                  text: 'حفظ الجدول الزمني',
+                  expand: true,
+                  loading: _saving,
+                  onPressed: _save,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

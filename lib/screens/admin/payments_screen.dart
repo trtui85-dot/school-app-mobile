@@ -16,19 +16,33 @@ class PaymentsScreen extends StatefulWidget {
 
 class _PaymentsScreenState extends State<PaymentsScreen> {
   List<Map<String, dynamic>>? _payments;
+  List<Map<String, dynamic>>? _sections;
+  int? _sectionId;
   String _status = '';
 
   @override
   void initState() {
     super.initState();
     _load();
+    _loadSections();
+  }
+
+  Future<void> _loadSections() async {
+    try {
+      final d = await ApiClient.instance.get('/api/admin/sections');
+      if (!mounted) return;
+      setState(() => _sections = asMapList(d['sections']));
+    } on ApiException catch (_) {}
   }
 
   Future<void> _load() async {
     if (mounted) setState(() => _payments = null);
     try {
       final d = await ApiClient.instance.get('/api/admin/payments',
-          query: _status.isEmpty ? null : {'status': _status});
+          query: {
+            if (_status.isNotEmpty) 'status': _status,
+            if (_sectionId != null) 'sectionId': _sectionId.toString(),
+          });
       if (!mounted) return;
       setState(() => _payments = asMapList(d['payments']));
     } on ApiException catch (e) {
@@ -87,6 +101,22 @@ class _PaymentsScreenState extends State<PaymentsScreen> {
                   ),
                 );
               }).toList(),
+            ),
+          ),
+          const SizedBox(height: 16),
+          AppCard(
+            child: AppSelectField<int>(
+              label: 'القسم',
+              placeholder: '— كل الأقسام —',
+              value: _sectionId,
+              options: [
+                const AppSelectOption(0, 'كل الأقسام'),
+                for (final s in _sections ?? []) AppSelectOption(asInt(s['id']), asStr(s['name'])),
+              ],
+              onChanged: (v) {
+                setState(() => _sectionId = v == 0 ? null : v);
+                _load();
+              },
             ),
           ),
           const SizedBox(height: 16),

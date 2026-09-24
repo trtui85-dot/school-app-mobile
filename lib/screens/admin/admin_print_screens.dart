@@ -124,8 +124,8 @@ class _AdminClassPrintScreenState extends State<AdminClassPrintScreen> {
     if (rows.isEmpty) return [rows];
     final widths = _colWidths;
     final headerH = _lineH('اسم', 60) + 8;
-    final firstBudget = _pageH - 40 - 84 - 12 - 20 - 12 - 46;
-    final nextBudget = _pageH - 40 - 84 - 12 - 18;
+    final firstBudget = _pageH - 40 - 96 - 14 - 24 - 14 - 52;
+    final nextBudget = _pageH - 40 - 96 - 14 - 20;
     final chunks = <List<Map<String, dynamic>>>[];
     var budget = firstBudget;
     var used = headerH;

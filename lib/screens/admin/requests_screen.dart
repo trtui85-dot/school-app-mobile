@@ -16,13 +16,33 @@ class RequestsScreen extends StatefulWidget {
 
 class _RequestsScreenState extends State<RequestsScreen> {
   List<Map<String, dynamic>>? _requests;
+  List<Map<String, dynamic>>? _sections;
+  int? _sectionId;
   bool _regOpen = true;
   String _regReason = '';
+
+  int? _sectionOf(Map<String, dynamic> r) {
+    final s = r['section'];
+    return s is Map ? asInt(s['id']) : null;
+  }
+
+  List<Map<String, dynamic>> get _filtered => (_requests ?? [])
+      .where((r) => _sectionId == null || _sectionOf(r) == _sectionId)
+      .toList();
 
   @override
   void initState() {
     super.initState();
     _load();
+    _loadSections();
+  }
+
+  Future<void> _loadSections() async {
+    try {
+      final d = await ApiClient.instance.get('/api/admin/sections');
+      if (!mounted) return;
+      setState(() => _sections = asMapList(d['sections']));
+    } on ApiException catch (_) {}
   }
 
   Future<void> _load() async {
@@ -159,7 +179,7 @@ class _RequestsScreenState extends State<RequestsScreen> {
             children: [
               Text('طلبات التسجيل', style: AppText.h1),
               const SizedBox(width: 8),
-              Text('(${_requests?.length ?? 0})', style: mono(12, FontWeight.w400, AppColors.zinc400)),
+              Text('(${_filtered.length})', style: mono(12, FontWeight.w400, AppColors.zinc400)),
             ],
           ),
           const SizedBox(height: 16),
@@ -208,12 +228,25 @@ class _RequestsScreenState extends State<RequestsScreen> {
             ),
           ),
           const SizedBox(height: 16),
+          AppCard(
+            child: AppSelectField<int>(
+              label: 'القسم',
+              placeholder: '— كل الأقسام —',
+              value: _sectionId,
+              options: [
+                const AppSelectOption(0, 'كل الأقسام'),
+                for (final s in _sections ?? []) AppSelectOption(asInt(s['id']), asStr(s['name'])),
+              ],
+              onChanged: (v) => setState(() => _sectionId = v == 0 ? null : v),
+            ),
+          ),
+          const SizedBox(height: 16),
           if (_requests == null)
             const AppSpinner()
-          else if (_requests!.isEmpty)
+          else if (_filtered.isEmpty)
             AppCard(child: const AppEmpty(title: 'لا توجد طلبات بانتظار المراجعة'))
           else
-            ..._requests!.map((r) => Padding(
+            ..._filtered.map((r) => Padding(
                   padding: const EdgeInsets.only(bottom: 10),
                   child: _requestCard(r),
                 )),

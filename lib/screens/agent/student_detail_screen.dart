@@ -253,12 +253,32 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
             child: Column(
               children: absences.map((a) {
                 final d = DateTime.parse(asStr(a['date']));
+                final createdAt = a['createdAt'] == null
+                    ? null
+                    : DateTime.tryParse(asStr(a['createdAt']));
+                final hour = createdAt?.hour;
+                final note = asStrOrNull(a['note']);
                 return Padding(
                   padding: const EdgeInsets.symmetric(vertical: 6),
                   child: Row(
                     children: [
-                      Text('${monthLabel(d.month)} ${d.day}', style: AppText.body),
-                      const Spacer(),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              '${d.day}/${d.month}/${d.year}',
+                              style: AppText.body,
+                            ),
+                            Text(
+                              tr('سجّل الغياب في الساعة ${hour ?? "؟"}'),
+                              style: AppText.tiny,
+                            ),
+                            if (note != null && note.isNotEmpty)
+                              Text('${tr('ملاحظة')}: $note', style: AppText.tiny),
+                          ],
+                        ),
+                      ),
                       AppBadge(tr('غائب'), tone: BadgeTone.bad),
                     ],
                   ),
