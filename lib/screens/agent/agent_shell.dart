@@ -8,6 +8,7 @@ import '../../core/session.dart';
 import '../../core/theme.dart';
 import '../../core/utils.dart';
 import '../../services/push_service.dart';
+import '../../widgets/ios_bottom_bar.dart';
 import '../../widgets/logo.dart';
 import 'complaints_screen.dart';
 import 'home_screen.dart';
@@ -88,46 +89,45 @@ class _AgentShellState extends State<AgentShell> {
         ),
       ),
       body: IndexedStack(index: _index, children: tabs),
-      bottomNavigationBar: Container(
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          border: Border(top: BorderSide(color: AppColors.zinc200)),
-        ),
-        child: SafeArea(
-          top: false,
-          child: SizedBox(
-            height: 56,
-            child: Row(
-              children: [
-                _tab(0, Icons.home_outlined, Icons.home, tr('الرئيسية')),
-                _tab(1, Icons.person_add_alt, Icons.person_add_alt_1, tr('تسجيل')),
-                _tab(2, Icons.notifications_none, Icons.notifications, tr('الإشعارات')),
-                _tab(3, Icons.chat_bubble_outline, Icons.chat_bubble, tr('الشكاوى')),
-              ],
-            ),
-          ),
-        ),
+      bottomNavigationBar: IOSBottomBar(
+        items: [
+          IOSNavItem(id: 'home', label: tr('الرئيسية'), icon: Icons.home_outlined, activeIcon: Icons.home),
+          IOSNavItem(id: 'register', label: tr('تسجيل'), icon: Icons.person_add_alt, activeIcon: Icons.person_add_alt_1),
+          IOSNavItem(id: 'notifications', label: tr('الإشعارات'), icon: Icons.notifications_none, activeIcon: Icons.notifications),
+          IOSNavItem(id: 'complaints', label: tr('الشكاوى'), icon: Icons.chat_bubble_outline, activeIcon: Icons.chat_bubble),
+        ],
+        selected: _idFor(_index),
+        onSelect: (id) {
+          setState(() => _index = _tabIndex(id.toString()));
+          if (id == 'home') _homeKey.currentState?.reload();
+        },
       ),
     );
   }
 
-  Widget _tab(int i, IconData icon, IconData activeIcon, String label) {
-    final active = _index == i;
-    return Expanded(
-      child: InkWell(
-        onTap: () {
-          setState(() => _index = i);
-          if (i == 0) _homeKey.currentState?.reload();
-        },
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(active ? activeIcon : icon, size: 22, color: active ? AppColors.accent : AppColors.zinc400),
-            const SizedBox(height: 3),
-            Text(label, style: ar(11, FontWeight.w500, active ? AppColors.accent : AppColors.zinc400)),
-          ],
-        ),
-      ),
-    );
+  String _idFor(int i) {
+    switch (i) {
+      case 1:
+        return 'register';
+      case 2:
+        return 'notifications';
+      case 3:
+        return 'complaints';
+      default:
+        return 'home';
+    }
+  }
+
+  int _tabIndex(String id) {
+    switch (id) {
+      case 'register':
+        return 1;
+      case 'notifications':
+        return 2;
+      case 'complaints':
+        return 3;
+      default:
+        return 0;
+    }
   }
 }

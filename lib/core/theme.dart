@@ -78,10 +78,14 @@ ThemeData buildAppTheme() {
       centerTitle: false,
       surfaceTintColor: Colors.transparent,
     ),
-    pageTransitionsTheme: const PageTransitionsTheme(
+    pageTransitionsTheme: PageTransitionsTheme(
       builders: {
-        // Avoid the zoom transition's black backdrop flash on Android.
-        TargetPlatform.android: FadeUpwardsPageTransitionsBuilder(),
+        // Quick, smooth fade-through transition (no black backdrop flash).
+        TargetPlatform.android: FadeForwardsPageTransitionsBuilder(),
+        TargetPlatform.iOS: FadeForwardsPageTransitionsBuilder(),
+        TargetPlatform.macOS: FadeForwardsPageTransitionsBuilder(),
+        TargetPlatform.windows: FadeForwardsPageTransitionsBuilder(),
+        TargetPlatform.linux: FadeForwardsPageTransitionsBuilder(),
       },
     ),
     dividerTheme: const DividerThemeData(color: AppColors.zinc100, space: 1),

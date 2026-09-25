@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../core/session.dart';
 import '../../core/theme.dart';
 import '../../services/push_service.dart';
+import '../../widgets/ios_bottom_bar.dart';
 import '../../widgets/logo.dart';
 import 'absences_screen.dart';
 import 'admin_complaints_screen.dart';
@@ -48,6 +49,7 @@ class AdminShell extends StatefulWidget {
 class _AdminShellState extends State<AdminShell> {
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   String _key = 'overview';
+  final Set<String> _visited = {'overview'};
 
   @override
   void initState() {
@@ -58,10 +60,15 @@ class _AdminShellState extends State<AdminShell> {
   List<AdminNavItem> _allowed(List<String> perms) =>
       adminNavItems.where((i) => hasPermission(perms, i.key)).toList();
 
+  void _go(String key) {
+    if (!_visited.contains(key)) _visited.add(key);
+    setState(() => _key = key);
+  }
+
   Widget _screen(String key) {
     switch (key) {
       case 'overview':
-        return OverviewScreen(onNavigate: (k) => setState(() => _key = k));
+        return OverviewScreen(onNavigate: _go);
       case 'sections':
         return const SectionsScreen();
       case 'requests':
@@ -99,6 +106,30 @@ class _AdminShellState extends State<AdminShell> {
     final mainItems = allowed.where((i) => mainKeys.contains(i.key)).toList();
     final moreItems = allowed.where((i) => !mainKeys.contains(i.key)).toList();
 
+    final orderedKeys = allowed.map((i) => i.key).toList();
+    final children = [
+      for (final k in orderedKeys)
+        if (_visited.contains(k)) _screen(k),
+    ];
+    final index = orderedKeys.indexOf(current).clamp(0, children.length - 1);
+
+    final barItems = <IOSNavItem>[
+      for (final it in mainItems)
+        IOSNavItem(
+          id: it.key,
+          label: it.key == 'requests' ? 'الطلبات' : it.label,
+          icon: it.icon,
+          activeIcon: it.activeIcon,
+        ),
+      if (moreItems.isNotEmpty)
+        const IOSNavItem(
+          id: 'more',
+          label: 'المزيد',
+          icon: Icons.more_horiz,
+          activeIcon: Icons.more_horiz,
+        ),
+    ];
+
     return Scaffold(
       key: _scaffoldKey,
       backgroundColor: AppColors.zinc50,
@@ -117,28 +148,19 @@ class _AdminShellState extends State<AdminShell> {
       drawer: _drawer(allowed, current),
       body: allowed.isEmpty
           ? const Center(child: Text('لا تملك أي صلاحيات'))
-          : _screen(current),
-      bottomNavigationBar: mainItems.isEmpty
+          : IndexedStack(index: index, children: children),
+      bottomNavigationBar: barItems.isEmpty
           ? null
-          : Container(
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                border: Border(top: BorderSide(color: AppColors.zinc200)),
-              ),
-              child: SafeArea(
-                top: false,
-                child: SizedBox(
-                  height: 58,
-                  child: Row(
-                    children: [
-                      for (final item in mainItems)
-                        _bottomItem(item, current == item.key, () => setState(() => _key = item.key)),
-                      if (moreItems.isNotEmpty)
-                        _moreItem(moreItems, current, () => setState(() {})),
-                    ],
-                  ),
-                ),
-              ),
+          : IOSBottomBar(
+              items: barItems,
+              selected: moreItems.any((i) => i.key == current) ? 'more' : current,
+              onSelect: (id) {
+                if (id == 'more') {
+                  _openMoreSheet(moreItems, current);
+                } else {
+                  _go(id.toString());
+                }
+              },
             ),
     );
   }
@@ -161,7 +183,7 @@ class _AdminShellState extends State<AdminShell> {
                     .map((i) => Padding(
                           padding: const EdgeInsets.only(bottom: 4),
                           child: _drawerItem(i, current == i.key, () {
-                            setState(() => _key = i.key);
+                            _go(i.key);
                             Navigator.pop(context);
                           }),
                         ))
@@ -221,112 +243,73 @@ class _AdminShellState extends State<AdminShell> {
     );
   }
 
-  Widget _bottomItem(AdminNavItem item, bool active, VoidCallback onTap) {
-    return Expanded(
-      child: InkWell(
-        onTap: onTap,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(active ? item.activeIcon : item.icon,
-                size: 22, color: active ? AppColors.accent : AppColors.zinc400),
-            const SizedBox(height: 3),
-            Text(
-              item.key == 'requests' ? 'الطلبات' : item.label,
-              style: ar(11, FontWeight.w500, active ? AppColors.accent : AppColors.zinc400),
-            ),
-          ],
-        ),
+  void _openMoreSheet(List<AdminNavItem> moreItems, String current) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.card)),
       ),
-    );
-  }
-
-  Widget _moreItem(List<AdminNavItem> moreItems, String current, VoidCallback refresh) {
-    final active = moreItems.any((i) => i.key == current);
-    return Expanded(
-      child: InkWell(
-        onTap: () {
-          showModalBottomSheet(
-            context: context,
-            backgroundColor: Colors.white,
-            shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.card)),
-            ),
-            builder: (_) => SafeArea(
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Center(
-                      child: Container(
-                        width: 40,
-                        height: 4,
-                        decoration: BoxDecoration(
-                            color: AppColors.zinc200, borderRadius: BorderRadius.circular(2)),
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    Text('المزيد', style: AppText.title, textAlign: TextAlign.center),
-                    const SizedBox(height: 12),
-                    GridView.count(
-                      crossAxisCount: 2,
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      mainAxisSpacing: 8,
-                      crossAxisSpacing: 8,
-                      childAspectRatio: 3.4,
-                      children: moreItems
-                          .map((i) => GestureDetector(
-                                onTap: () {
-                                  setState(() => _key = i.key);
-                                  Navigator.pop(context);
-                                  refresh();
-                                },
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    color: current == i.key ? AppColors.accentSoft : Colors.white,
-                                    borderRadius: BorderRadius.circular(AppRadius.control),
-                                    border: Border.all(
-                                        color: current == i.key
-                                            ? AppColors.accent.withValues(alpha: 0.3)
-                                            : AppColors.zinc200),
-                                  ),
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Icon(i.icon,
-                                          size: 18,
-                                          color: current == i.key
-                                              ? AppColors.accent
-                                              : AppColors.zinc600),
-                                      const SizedBox(width: 8),
-                                      Text(i.label,
-                                          style: ar(13, FontWeight.w600,
-                                              current == i.key ? AppColors.accent : AppColors.zinc600)),
-                                    ],
-                                  ),
-                                ),
-                              ))
-                          .toList(),
-                    ),
-                    const SizedBox(height: 12),
-                    AppLogoutTile(),
-                  ],
+      builder: (_) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                      color: AppColors.zinc200, borderRadius: BorderRadius.circular(2)),
                 ),
               ),
-            ),
-          );
-        },
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.more_horiz, size: 22, color: active ? AppColors.accent : AppColors.zinc400),
-            const SizedBox(height: 3),
-            Text('المزيد',
-                style: ar(11, FontWeight.w500, active ? AppColors.accent : AppColors.zinc400)),
-          ],
+              const SizedBox(height: 12),
+              Text('المزيد', style: AppText.title, textAlign: TextAlign.center),
+              const SizedBox(height: 12),
+              GridView.count(
+                crossAxisCount: 2,
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                mainAxisSpacing: 8,
+                crossAxisSpacing: 8,
+                childAspectRatio: 3.4,
+                children: moreItems
+                    .map((i) => GestureDetector(
+                          onTap: () {
+                            _go(i.key);
+                            Navigator.pop(context);
+                          },
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: current == i.key ? AppColors.accentSoft : Colors.white,
+                              borderRadius: BorderRadius.circular(AppRadius.control),
+                              border: Border.all(
+                                  color: current == i.key
+                                      ? AppColors.accent.withValues(alpha: 0.3)
+                                      : AppColors.zinc200),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(i.icon,
+                                    size: 18,
+                                    color: current == i.key ? AppColors.accent : AppColors.zinc600),
+                                const SizedBox(width: 8),
+                                Text(i.label,
+                                    style: ar(13, FontWeight.w600,
+                                        current == i.key ? AppColors.accent : AppColors.zinc600)),
+                              ],
+                            ),
+                          ),
+                        ))
+                    .toList(),
+              ),
+              const SizedBox(height: 12),
+              AppLogoutTile(),
+            ],
+          ),
         ),
       ),
     );
