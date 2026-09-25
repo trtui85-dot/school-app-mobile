@@ -87,6 +87,7 @@ class _PrintSheetScreenState extends State<PrintSheetScreen> {
         doc.addPage(
           pw.Page(
             pageFormat: PdfPageFormat.a4,
+            orientation: pw.PageOrientation.portrait,
             build: (_) => pw.Center(
               child: pw.Image(
                 pw.MemoryImage(b),

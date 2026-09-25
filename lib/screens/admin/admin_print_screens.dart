@@ -178,16 +178,26 @@ class _AdminClassPrintScreenState extends State<AdminClassPrintScreen> {
               ),
               const SizedBox(height: 10),
               Table(
-                border: TableBorder.all(color: AppColors.zinc300, width: 0.5),
+                border: const TableBorder.symmetric(
+                  inside: BorderSide(color: AppColors.zinc300, width: 0.5),
+                ),
                 columnWidths: {
                   for (var i = 0; i < 5; i++) i: FlexColumnWidth(_columns[i]),
                 },
                 children: [
-                  _th('رقم النداء'),
-                  _th('الاسم'),
-                  _th('الاسم بالفرنسية'),
-                  _th('ولي الأمر'),
-                  _th('ملاحظات'),
+                  TableRow(
+                    decoration: const BoxDecoration(
+                      color: AppColors.zinc100,
+                      border: Border(bottom: BorderSide(color: Colors.black, width: 2)),
+                    ),
+                    children: [
+                      _th('رقم النداء'),
+                      _th('الاسم'),
+                      _th('الاسم بالفرنسية'),
+                      _th('ولي الأمر'),
+                      _th('ملاحظات'),
+                    ],
+                  ),
                   for (final s in chunks[k])
                     TableRow(children: [
                       _td(asIntOrNull(s['attendanceNumber'])?.toString() ?? ''),
@@ -225,10 +235,7 @@ class _AdminClassPrintScreenState extends State<AdminClassPrintScreen> {
     );
   }
 
-  TableRow _th(String text) => TableRow(
-        decoration: const BoxDecoration(color: AppColors.zinc100),
-        children: [_td(text, bold: true)],
-      );
+  Widget _th(String text) => _td(text, bold: true);
 
   Widget _td(String text, {bool bold = false, bool ltr = false}) {
     final style = ltr

@@ -400,6 +400,7 @@ class _SectionDetailScreenState extends State<SectionDetailScreen> {
         title: 'الجدول الزمني الأسبوعي — ${asStr(_section!['name'])}',
         body: _ScheduleEditor(
           initial: asMapList(_section!['schedule']),
+          subjects: asStrList(_section!['subjects']),
           onSave: (schedule) => _saveSection(schedule: schedule),
         ),
         ratio: 0.9,
@@ -674,8 +675,9 @@ class _SubjectsEditorState extends State<_SubjectsEditor> {
 
 class _ScheduleEditor extends StatefulWidget {
   final List<Map<String, dynamic>> initial;
+  final List<String> subjects;
   final Future<void> Function(List<Map<String, dynamic>> schedule) onSave;
-  const _ScheduleEditor({required this.initial, required this.onSave});
+  const _ScheduleEditor({required this.initial, required this.subjects, required this.onSave});
   @override
   State<_ScheduleEditor> createState() => _ScheduleEditorState();
 }
@@ -690,32 +692,29 @@ class _ScheduleEditorState extends State<_ScheduleEditor> {
         'end': asStr(e['end']),
       }
   ];
-  final _subjectCtrl = TextEditingController();
-  final _startCtrl = TextEditingController();
-  final _endCtrl = TextEditingController();
+  static const List<String> _times = [
+    '07:00', '07:30', '08:00', '08:30', '09:00', '09:30', '10:00', '10:30',
+    '11:00', '11:30', '12:00', '12:30', '13:00', '13:30', '14:00', '14:30',
+    '15:00', '15:30', '16:00', '16:30', '17:00',
+  ];
+  String? _subject;
+  String? _start;
+  String? _end;
   int? _day;
   int _editIndex = -1;
   bool _formVisible = false;
   bool _saving = false;
   String _formError = '';
 
-  @override
-  void dispose() {
-    _subjectCtrl.dispose();
-    _startCtrl.dispose();
-    _endCtrl.dispose();
-    super.dispose();
-  }
-
   void _beginAdd() {
     setState(() {
       _formVisible = true;
       _editIndex = -1;
       _day = null;
+      _subject = null;
+      _start = null;
+      _end = null;
       _formError = '';
-      _subjectCtrl.clear();
-      _startCtrl.clear();
-      _endCtrl.clear();
     });
   }
 
@@ -725,23 +724,27 @@ class _ScheduleEditorState extends State<_ScheduleEditor> {
       _formVisible = true;
       _editIndex = i;
       _day = asIntOrNull(e['day']);
+      _subject = asStr(e['subject']);
+      _start = asStr(e['start']);
+      _end = asStr(e['end']);
       _formError = '';
-      _subjectCtrl.text = asStr(e['subject']);
-      _startCtrl.text = asStr(e['start']);
-      _endCtrl.text = asStr(e['end']);
     });
   }
 
-  bool _validTime(String t) => RegExp(r'^\d{1,2}:\d{2}$').hasMatch(t);
+  int _toMinutes(String t) {
+    final parts = t.split(':');
+    return (int.tryParse(parts[0]) ?? 0) * 60 + (int.tryParse(parts[1]) ?? 0);
+  }
 
   void _submitForm() {
-    final subject = _subjectCtrl.text.trim();
-    final start = _startCtrl.text.trim();
-    final end = _endCtrl.text.trim();
+    final subject = (_subject ?? '').trim();
+    final start = (_start ?? '').trim();
+    final end = (_end ?? '').trim();
     if (_day == null) return setState(() => _formError = 'اختر اليوم');
-    if (subject.isEmpty) return setState(() => _formError = 'اسم المادة مطلوب');
-    if (!_validTime(start) || !_validTime(end)) {
-      return setState(() => _formError = 'الوقت بصيغة HH:MM — مثال 08:00');
+    if (subject.isEmpty) return setState(() => _formError = 'اختر المادة من القائمة');
+    if (start.isEmpty || end.isEmpty) return setState(() => _formError = 'اختر وقت البداية والنهاية');
+    if (_toMinutes(end) <= _toMinutes(start)) {
+      return setState(() => _formError = 'وقت النهاية يجب أن يكون بعد وقت البداية');
     }
     final entry = {'day': _day, 'subject': subject, 'start': start, 'end': end};
     setState(() {
@@ -753,9 +756,9 @@ class _ScheduleEditorState extends State<_ScheduleEditor> {
       _formVisible = false;
       _editIndex = -1;
       _formError = '';
-      _subjectCtrl.clear();
-      _startCtrl.clear();
-      _endCtrl.clear();
+      _subject = null;
+      _start = null;
+      _end = null;
     });
   }
 
@@ -811,13 +814,51 @@ class _ScheduleEditorState extends State<_ScheduleEditor> {
                     onChanged: (v) => setState(() => _day = v),
                   ),
                   const SizedBox(height: 10),
-                  AppInput(label: 'المادة', hint: 'مثال: اللغة العربية', controller: _subjectCtrl),
+                  if (widget.subjects.isEmpty)
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: AppColors.pendingSoft,
+                        borderRadius: BorderRadius.circular(AppRadius.control),
+                      ),
+                      child: Text(
+                        'لا توجد مواد مسجلة في هذا القسم — أضف المواد أولًا من نافذة «المواد الدراسية».',
+                        style: ar(12, FontWeight.w400, AppColors.pending),
+                      ),
+                    )
+                  else
+                    AppSelectField<String>(
+                      label: 'المادة',
+                      placeholder: '— اختر المادة من مواد القسم —',
+                      value: _subject,
+                      options: [
+                        for (final s in widget.subjects) AppSelectOption(s, s),
+                      ],
+                      onChanged: (v) => setState(() => _subject = v),
+                    ),
                   const SizedBox(height: 10),
                   Row(
                     children: [
-                      Expanded(child: AppInput(label: 'البداية', hint: '08:00', controller: _startCtrl, ltr: true)),
+                      Expanded(
+                        child: AppSelectField<String>(
+                          label: 'البداية',
+                          placeholder: '08:00',
+                          value: _start,
+                          options: [for (final t in _times) AppSelectOption(t, t)],
+                          onChanged: (v) => setState(() => _start = v),
+                        ),
+                      ),
                       const SizedBox(width: 10),
-                      Expanded(child: AppInput(label: 'النهاية', hint: '09:00', controller: _endCtrl, ltr: true)),
+                      Expanded(
+                        child: AppSelectField<String>(
+                          label: 'النهاية',
+                          placeholder: '09:00',
+                          value: _end,
+                          options: [for (final t in _times) AppSelectOption(t, t)],
+                          onChanged: (v) => setState(() => _end = v),
+                        ),
+                      ),
                     ],
                   ),
                   if (_formError.isNotEmpty) ...[
