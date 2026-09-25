@@ -58,7 +58,7 @@ class _AdminClassPrintScreenState extends State<AdminClassPrintScreen> {
   String _schoolName = 'مدارس اقرأ الحديثة';
   String _error = '';
 
-  static const _columns = [1.2, 2.2, 2.0, 2.2, 1.2];
+  static const _columns = [1.0, 2.4, 2.0, 2.0, 1.4];
   static const _pageW = 360.0;
   static const _pageH = 509.0;
 
@@ -111,9 +111,20 @@ class _AdminClassPrintScreenState extends State<AdminClassPrintScreen> {
       asMap(s['agent'])['fullName']?.toString() ?? '',
       '',
     ];
-    var h = 10.0;
+    var h = 12.0;
     for (var i = 0; i < cells.length; i++) {
-      final cellH = _lineH(cells[i], widths[i] - 8, ltr: i == 2) + 8;
+      final cellH = _lineH(cells[i], widths[i] - 12, ltr: i == 2) + 10;
+      if (cellH > h) h = cellH;
+    }
+    return h;
+  }
+
+  static const _headerLabels = ['رقم النداء', 'الاسم', 'الاسم بالفرنسية', 'ولي الأمر', 'ملاحظات'];
+
+  double _headerH(List<double> widths) {
+    var h = 12.0;
+    for (var i = 0; i < _headerLabels.length; i++) {
+      final cellH = _lineH(_headerLabels[i], widths[i] - 8) + 10;
       if (cellH > h) h = cellH;
     }
     return h;
@@ -123,11 +134,11 @@ class _AdminClassPrintScreenState extends State<AdminClassPrintScreen> {
     final rows = _students;
     if (rows.isEmpty) return [rows];
     final widths = _colWidths;
-    final headerH = _lineH('اسم', 60) + 8;
-    final firstBudget = _pageH - 40 - 96 - 14 - 24 - 14 - 52;
-    final nextBudget = _pageH - 40 - 96 - 14 - 20;
+    final headerH = _headerH(widths);
+    // sheetHeader(~62) + gap(10) + info(18) + gap(10) + footer/pageNumber reserve(32)
+    final overhead = 62 + 10 + 18 + 10 + 32;
+    final budget = _pageH - 40 - overhead - 6;
     final chunks = <List<Map<String, dynamic>>>[];
-    var budget = firstBudget;
     var used = headerH;
     var current = <Map<String, dynamic>>[];
     for (final s in rows) {
@@ -135,7 +146,6 @@ class _AdminClassPrintScreenState extends State<AdminClassPrintScreen> {
       if (used + h > budget && current.isNotEmpty) {
         chunks.add(current);
         current = <Map<String, dynamic>>[];
-        budget = nextBudget;
         used = headerH;
       }
       current.add(s);
@@ -201,11 +211,17 @@ class _AdminClassPrintScreenState extends State<AdminClassPrintScreen> {
                   for (final s in chunks[k])
                     TableRow(children: [
                       _td(asIntOrNull(s['attendanceNumber'])?.toString() ?? ''),
-                      _td('${asStr(s['arabicFirstName'])} ${asStr(s['arabicLastName'])}'),
+                      _td(
+                        '${asStr(s['arabicFirstName'])} ${asStr(s['arabicLastName'])}',
+                        align: TextAlign.right,
+                      ),
                       _td(
                           '${asStr(s['frenchFirstName'])} ${asStr(s['frenchLastName'])}'.trim(),
                           ltr: true),
-                      _td(asMap(s['agent'])['fullName']?.toString() ?? ''),
+                      _td(
+                        asMap(s['agent'])['fullName']?.toString() ?? '',
+                        align: TextAlign.right,
+                      ),
                       _td(''),
                     ]),
                 ],
@@ -237,13 +253,13 @@ class _AdminClassPrintScreenState extends State<AdminClassPrintScreen> {
 
   Widget _th(String text) => _td(text, bold: true);
 
-  Widget _td(String text, {bool bold = false, bool ltr = false}) {
+  Widget _td(String text, {bool bold = false, bool ltr = false, TextAlign align = TextAlign.center}) {
     final style = ltr
         ? mono(10, bold ? FontWeight.w700 : FontWeight.w400, AppColors.foreground)
         : ar(10, bold ? FontWeight.w700 : FontWeight.w400, AppColors.foreground);
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
-      child: Text(text, textAlign: TextAlign.center, style: style),
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 5),
+      child: Text(text, textAlign: align, style: style, maxLines: 3, overflow: TextOverflow.ellipsis),
     );
   }
 }
