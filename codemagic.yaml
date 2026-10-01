@@ -13,7 +13,7 @@ workflows:
           source: true
 
     integrations:
-      app_store_connect: YOUR_ASC_KEY_NAME
+      app_store_connect: ascIqra
 
     environment:
       ios_signing:
@@ -22,7 +22,7 @@ workflows:
       flutter: stable
       xcode: latest
       vars:
-        APP_STORE_ID: 0000000000
+        APP_STORE_ID: 6818333559
         BUNDLE_ID: com.iqra.schoolapp
 
     scripts:
