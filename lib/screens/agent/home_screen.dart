@@ -118,7 +118,7 @@ class HomeScreenState extends State<HomeScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    '${asStr(s['arabicFirstName'])} ${asStr(s['arabicLastName'])}',
+                    studentName(s),
                     overflow: TextOverflow.ellipsis,
                     style: ar(14, FontWeight.w600, AppColors.foreground),
                   ),

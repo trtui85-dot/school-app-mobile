@@ -98,6 +98,7 @@ class AppInput extends StatelessWidget {
   final TextInputType? keyboardType;
   final bool obscureText;
   final bool ltr;
+  final bool rtl;
   final bool number;
   final int? maxLength;
   final Widget? suffix;
@@ -118,6 +119,7 @@ class AppInput extends StatelessWidget {
     this.keyboardType,
     this.obscureText = false,
     this.ltr = false,
+    this.rtl = false,
     this.number = false,
     this.maxLength,
     this.suffix,
@@ -133,6 +135,7 @@ class AppInput extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final useLtr = rtl ? false : (ltr || isFr);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -151,8 +154,8 @@ class AppInput extends StatelessWidget {
           onChanged: onChanged,
           onFieldSubmitted: onSubmitted == null ? null : (_) => onSubmitted!(),
           textInputAction: textInputAction,
-          textDirection: ltr ? TextDirection.ltr : null,
-          textAlign: ltr ? TextAlign.left : TextAlign.right,
+          textDirection: useLtr ? TextDirection.ltr : TextDirection.rtl,
+          textAlign: useLtr ? TextAlign.left : TextAlign.right,
           style: ar(14, FontWeight.w400, AppColors.foreground),
           decoration: InputDecoration(
             counterText: '',

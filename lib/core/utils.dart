@@ -78,6 +78,14 @@ String formatArabicDateTime(dynamic value) {
   return DateFormat('d MMMM y — HH:mm', isFr ? 'fr' : 'ar').format(d);
 }
 
+/// Student display name. In French mode uses the French name when available,
+/// otherwise falls back to the Arabic name.
+String studentName(Map<String, dynamic> s) {
+  final fr = '${asStr(s['frenchFirstName'])} ${asStr(s['frenchLastName'])}'.trim();
+  if (isFr && fr.isNotEmpty) return fr;
+  return '${asStr(s['arabicFirstName'])} ${asStr(s['arabicLastName'])}'.trim();
+}
+
 // ---- JSON helpers (API returns loosely-typed maps) ----
 
 Map<String, dynamic> asMap(dynamic v) =>

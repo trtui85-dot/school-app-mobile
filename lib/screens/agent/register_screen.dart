@@ -28,7 +28,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   String _regReason = '';
   String _error = '';
   String? _proof;
-  String? _copiedBank;
+  int? _copiedBankIdx;
 
   final _arabicFirst = TextEditingController();
   final _arabicLast = TextEditingController();
@@ -84,11 +84,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
     }
   }
 
-  Future<void> _copyBank(String number) async {
+  Future<void> _copyBank(int idx, String number) async {
     await Clipboard.setData(ClipboardData(text: number));
-    setState(() => _copiedBank = number);
+    setState(() => _copiedBankIdx = idx);
     await Future.delayed(const Duration(seconds: 2));
-    if (mounted) setState(() => _copiedBank = null);
+    if (mounted && _copiedBankIdx == idx) setState(() => _copiedBankIdx = null);
   }
 
   Future<void> _submit() async {
@@ -194,7 +194,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ],
                 ),
                 const SizedBox(height: 8),
-                ..._banks.map(_bankRow),
+                ..._banks.asMap().entries.map((e) => _bankRow(e.value, e.key)),
               ],
             ],
           ),
@@ -207,9 +207,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
               Text(tr('بيانات التلميذ'), style: ar(14, FontWeight.w700, AppColors.zinc700)),
               const SizedBox(height: 12),
               Row(children: [
-                Expanded(child: AppInput(label: tr('الاسم (عربي)'), controller: _arabicFirst)),
+                Expanded(child: AppInput(label: tr('الاسم بالعربية'), controller: _arabicFirst, rtl: true)),
                 const SizedBox(width: 12),
-                Expanded(child: AppInput(label: tr('اللقب (عربي)'), controller: _arabicLast)),
+                Expanded(child: AppInput(label: tr('اللقب بالعربية'), controller: _arabicLast, rtl: true)),
               ]),
               const SizedBox(height: 12),
               Row(children: [
@@ -250,17 +250,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
   }
 
-  Widget _bankRow(Map<String, dynamic> b) {
+  Widget _bankRow(Map<String, dynamic> b, int idx) {
     final number = asStr(b['number']);
     final logo = asStrOrNull(b['logo']);
-    final copied = _copiedBank == number;
+    final copied = _copiedBankIdx == idx;
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: Container(
         padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(AppRadius.control),
-          border: Border.all(color: AppColors.zinc100),
+          border: Border.all(color: copied ? AppColors.ok.withValues(alpha: 0.4) : AppColors.zinc100),
         ),
         child: Row(
           children: [
@@ -287,8 +287,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
               ),
             ),
             GestureDetector(
-              onTap: () => _copyBank(number),
-              child: Container(
+              onTap: () => _copyBank(idx, number),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 180),
                 height: 36,
                 padding: const EdgeInsets.symmetric(horizontal: 10),
                 decoration: BoxDecoration(

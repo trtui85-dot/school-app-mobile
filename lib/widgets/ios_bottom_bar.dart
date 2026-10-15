@@ -70,11 +70,11 @@ class IOSBottomBar extends StatelessWidget {
           AnimatedContainer(
             duration: const Duration(milliseconds: 240),
             curve: Curves.easeOutCubic,
-            height: 32,
-            padding: EdgeInsets.symmetric(horizontal: active ? 14 : 10),
+            width: active ? 30 : 26,
+            height: active ? 30 : 26,
             decoration: BoxDecoration(
-              color: active ? AppColors.accent.withValues(alpha: 0.14) : Colors.transparent,
-              borderRadius: BorderRadius.circular(16),
+              color: active ? AppColors.accent.withValues(alpha: 0.12) : Colors.transparent,
+              shape: BoxShape.circle,
             ),
             child: Center(
               child: AnimatedSwitcher(
@@ -83,13 +83,13 @@ class IOSBottomBar extends StatelessWidget {
                 child: Icon(
                   active ? item.activeIcon : item.icon,
                   key: ValueKey('${active}_${item.id}'),
-                  size: 22,
+                  size: active ? 20 : 19,
                   color: active ? AppColors.accent : AppColors.zinc500,
                 ),
               ),
             ),
           ),
-          const SizedBox(height: 3),
+          const SizedBox(height: 4),
           AnimatedDefaultTextStyle(
             duration: const Duration(milliseconds: 200),
             style: ar(10, active ? FontWeight.w700 : FontWeight.w500,

@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../core/api_client.dart';
 import '../../core/l10n.dart';
 import '../../core/theme.dart';
 import '../../core/utils.dart';
 import '../../widgets/receipt_screen.dart';
-import '../../widgets/timetable.dart';
+import '../../widgets/timetable_card.dart';
+import '../../widgets/toast.dart';
 import '../../widgets/ui.dart';
 import 'pay_screen.dart';
 
@@ -21,11 +23,39 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
   String _error = '';
   String? _screen;
   bool _loading = true;
+  String _resultsUrl = '';
+  bool _resultsLoaded = false;
+  String _schoolName = '';
 
   @override
   void initState() {
     super.initState();
     _load();
+    _loadResultsUrl();
+  }
+
+  Future<void> _loadResultsUrl() async {
+    try {
+      final d = await ApiClient.instance.get('/api/public/register-info');
+      if (!mounted) return;
+      setState(() {
+        _resultsUrl = asStr(d['resultsUrl']).trim();
+        _schoolName = asStr(d['schoolName']).trim();
+        _resultsLoaded = true;
+      });
+    } catch (_) {
+      if (mounted) setState(() => _resultsLoaded = true);
+    }
+  }
+
+  Future<void> _openResults() async {
+    final url = _resultsUrl.trim();
+    if (url.isEmpty) return;
+    final uri = Uri.parse(url);
+    final ok = await launchUrl(uri, mode: LaunchMode.inAppBrowserView);
+    if (!ok && mounted) {
+      showToast(context, tr('تعذر فتح صفحة النتائج'), type: ToastType.error);
+    }
   }
 
   Future<void> _load() async {
@@ -87,8 +117,8 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
 
     final cards = [
       ['الغياب', tr('سجل الغياب وأيام الغيبة'), Icons.event_busy, const Color(0xFFF43F5E)],
-      ['مواد وجدول', tr('المواد الدراسية والجدول الأسبوعي'), Icons.menu_book_outlined, const Color(0xFF8B5CF6)],
-      ['نتائج', tr('الدرجات والنتائج الدراسية'), Icons.emoji_events_outlined, const Color(0xFF10B981)],
+      ['المواد والجدول', tr('المواد الدراسية والجدول الأسبوعي'), Icons.menu_book_outlined, const Color(0xFF8B5CF6)],
+      ['النتائج', tr('الدرجات والنتائج الدراسية'), Icons.emoji_events_outlined, const Color(0xFF10B981)],
       ['رسائل الإدارة', tr('رسائل إدارة المدرسة'), Icons.message_outlined, const Color(0xFFF59E0B)],
       ['الدفعات', tr('رسوم التسجيل والاشتراكات الشهرية'), Icons.credit_card, const Color(0xFF0EA5E9)],
     ];
@@ -221,9 +251,8 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
         ),
         const SizedBox(height: 16),
         if (_screen == 'الغياب') _absence(student),
-        if (_screen == 'مواد وجدول') _subjectsAndSchedule(student),
-        if (_screen == 'نتائج')
-          AppCard(child: AppEmpty(title: tr('قريبًا'), hint: tr('وحدة النتائج والدرجات ستتوفر لاحقًا'))),
+        if (_screen == 'المواد والجدول') _subjectsAndSchedule(student),
+        if (_screen == 'النتائج') _results(student),
         if (_screen == 'رسائل الإدارة') _messages(student),
         if (_screen == 'الدفعات') _payments(student),
       ],
@@ -294,45 +323,122 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
     final section = student['section'] == null ? null : asMap(student['section']);
     if (section == null) return AppCard(child: AppEmpty(title: tr('لا توجد بيانات القسم')));
     final subjects = asStrList(section['subjects']);
-    final schedule = asMapList(section['schedule']);
     return Column(
       children: [
         AppCard(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(tr('المواد الدراسية'), style: ar(14, FontWeight.w700, AppColors.zinc700)),
-              const SizedBox(height: 8),
+              _sectionTitle(tr('المواد الدراسية'), '${subjects.length} ${tr('مادة')}'),
+              const SizedBox(height: 12),
               if (subjects.isEmpty)
                 Text('—', style: AppText.small)
               else
                 Wrap(
                   spacing: 8,
                   runSpacing: 8,
-                  children: subjects
-                      .map((s) => Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                            decoration: BoxDecoration(
-                                color: AppColors.accentSoft, borderRadius: BorderRadius.circular(8)),
-                            child: Text(s, style: ar(12, FontWeight.w500, AppColors.accent)),
-                          ))
-                      .toList(),
+                  children: subjects.map(_subjectChip).toList(),
                 ),
             ],
           ),
         ),
         const SizedBox(height: 12),
         AppCard(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(tr('الجدول الزمني الأسبوعي'), style: ar(14, FontWeight.w700, AppColors.zinc700)),
-              const SizedBox(height: 12),
-              Timetable(schedule: schedule),
-            ],
+          child: TimetableSection(
+            section: section,
+            studentName: studentName(student),
+            schoolName: _schoolName,
           ),
         ),
       ],
+    );
+  }
+
+  Widget _sectionTitle(String title, String? subtitle) => Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(title, style: ar(15, FontWeight.w700, AppColors.zinc800)),
+          if (subtitle != null)
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+              decoration: BoxDecoration(
+                color: AppColors.zinc100,
+                borderRadius: BorderRadius.circular(999),
+              ),
+              child: Text(subtitle, style: ar(11, FontWeight.w600, AppColors.zinc500)),
+            ),
+        ],
+      );
+
+  Widget _subjectChip(String s) => Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+        decoration: BoxDecoration(
+          color: AppColors.accentSoft,
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 6,
+              height: 6,
+              decoration: const BoxDecoration(color: AppColors.accent, shape: BoxShape.circle),
+            ),
+            const SizedBox(width: 6),
+            Text(s, style: ar(13, FontWeight.w600, AppColors.accent)),
+          ],
+        ),
+      );
+
+  Widget _results(Map<String, dynamic> student) {
+    final hasUrl = _resultsUrl.isNotEmpty;
+    return AppCard(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        child: hasUrl
+            ? Column(
+                children: [
+                  Container(
+                    width: 56,
+                    height: 56,
+                    decoration: BoxDecoration(
+                      color: AppColors.okSoft,
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(Icons.emoji_events_outlined, color: AppColors.ok, size: 26),
+                  ),
+                  const SizedBox(height: 12),
+                  Text(tr('عرض النتائج'),
+                      style: ar(15, FontWeight.w700, AppColors.foreground)),
+                  const SizedBox(height: 4),
+                  Text(tr('الدرجات والنتائج الدراسية'),
+                      style: ar(12, FontWeight.w400, AppColors.zinc500)),
+                  const SizedBox(height: 16),
+                  AppButton(text: tr('عرض النتائج'), expand: true, onPressed: _openResults),
+                ],
+              )
+            : Column(
+                children: [
+                  Container(
+                    width: 56,
+                    height: 56,
+                    decoration: const BoxDecoration(
+                      color: AppColors.pendingSoft,
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(Icons.hourglass_top_outlined, color: AppColors.pending, size: 26),
+                  ),
+                  const SizedBox(height: 12),
+                  Text(tr('قريبًا'), style: ar(15, FontWeight.w700, AppColors.foreground)),
+                  const SizedBox(height: 4),
+                  Text(
+                    _resultsLoaded ? tr('وحدة النتائج والدرجات ستتوفر لاحقًا') : '—',
+                    textAlign: TextAlign.center,
+                    style: ar(12, FontWeight.w400, AppColors.zinc500),
+                  ),
+                ],
+              ),
+      ),
     );
   }
 
@@ -463,6 +569,5 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
     );
   }
 
-  String titleOf(Map<String, dynamic> s) =>
-      '${asStr(s['arabicFirstName'])} ${asStr(s['arabicLastName'])}';
+  String titleOf(Map<String, dynamic> s) => studentName(s);
 }

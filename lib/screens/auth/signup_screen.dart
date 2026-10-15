@@ -78,11 +78,10 @@ class _SignupScreenState extends State<SignupScreen> {
                     const SizedBox(height: 8),
                     Text(tr('لتسجيل أطفالك ومتابعتهم'), style: ar(13, FontWeight.w400, AppColors.zinc500)),
                     const SizedBox(height: 28),
-                    AppInput(label: tr('الاسم الكامل'), hint: tr('الاسم واللقب'), controller: _name),
+                    AppInput(label: tr('الاسم الكامل'), controller: _name),
                     const SizedBox(height: 16),
                     AppInput(
                       label: tr('رقم الهاتف'),
-                      hint: 'XXXXXXXX',
                       controller: _phone,
                       ltr: true,
                       number: true,
@@ -100,7 +99,6 @@ class _SignupScreenState extends State<SignupScreen> {
                     const SizedBox(height: 16),
                     AppInput(
                       label: tr('كلمة المرور'),
-                      hint: tr('6 محارف على الأقل'),
                       controller: _password,
                       obscureText: _obscure,
                       suffix: IconButton(
@@ -111,7 +109,6 @@ class _SignupScreenState extends State<SignupScreen> {
                     const SizedBox(height: 16),
                     AppInput(
                       label: tr('تأكيد كلمة المرور'),
-                      hint: tr('أعد كتابة كلمة المرور'),
                       controller: _confirm,
                       obscureText: _obscure,
                       onSubmitted: _submit,

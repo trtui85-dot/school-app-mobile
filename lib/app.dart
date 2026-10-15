@@ -8,6 +8,7 @@ import 'core/theme.dart';
 import 'screens/admin/admin_shell.dart';
 import 'screens/agent/agent_shell.dart';
 import 'screens/auth/landing_screen.dart';
+import 'services/update_checker.dart';
 
 class SchoolApp extends StatelessWidget {
   const SchoolApp({super.key});
@@ -35,8 +36,21 @@ class SchoolApp extends StatelessWidget {
   }
 }
 
-class RootGate extends StatelessWidget {
+class RootGate extends StatefulWidget {
   const RootGate({super.key});
+
+  @override
+  State<RootGate> createState() => _RootGateState();
+}
+
+class _RootGateState extends State<RootGate> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) UpdateChecker.check(context);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {

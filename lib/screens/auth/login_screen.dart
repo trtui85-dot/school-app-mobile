@@ -7,6 +7,7 @@ import '../../core/session.dart';
 import '../../core/theme.dart';
 import '../../widgets/logo.dart';
 import '../../widgets/language_toggle.dart';
+import '../../widgets/toast.dart';
 import '../../widgets/ui.dart';
 import 'signup_screen.dart';
 
@@ -39,8 +40,9 @@ class _LoginScreenState extends State<LoginScreen> {
       await context.read<SessionManager>().login(_identifier.text.trim(), _password.text);
       if (!mounted) return;
       Navigator.of(context).popUntil((r) => r.isFirst);
-    } on ApiException catch (e) {
-      setState(() => _error = e.message);
+    } on ApiException {
+      if (!mounted) return;
+      showToast(context, tr('بيانات الدخول غير صحيحة'), type: ToastType.error);
     } finally {
       if (mounted) setState(() => _loading = false);
     }
@@ -69,15 +71,10 @@ class _LoginScreenState extends State<LoginScreen> {
                     const SizedBox(height: 20),
                     Text(tr('تسجيل الدخول'), style: ar(22, FontWeight.w700, AppColors.foreground)),
                     const SizedBox(height: 8),
-                    Text(
-                      tr('مرحبًا بك — سيُوجَّهك التطبيق تلقائيًا إلى لوحتك'),
-                      textAlign: TextAlign.center,
-                      style: ar(13, FontWeight.w400, AppColors.zinc500),
-                    ),
+                    Text(tr('مرحبًا بك'), style: ar(13, FontWeight.w400, AppColors.zinc500)),
                     const SizedBox(height: 28),
                     AppInput(
                       label: tr('رقم الهاتف'),
-                      hint: 'XXXXXXXX',
                       controller: _identifier,
                       ltr: true,
                       number: true,
@@ -87,7 +84,6 @@ class _LoginScreenState extends State<LoginScreen> {
                     const SizedBox(height: 16),
                     AppInput(
                       label: tr('كلمة المرور'),
-                      hint: '••••••',
                       controller: _password,
                       obscureText: _obscure,
                       suffix: IconButton(
