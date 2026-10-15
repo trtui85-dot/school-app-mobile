@@ -215,6 +215,100 @@ class _AdminMessagesScreenState extends State<AdminMessagesScreen> {
     );
   }
 
+  Future<void> _updateSheet() async {
+    final titleCtrl = TextEditingController(text: 'تحديث جديد للتطبيق');
+    final contentCtrl = TextEditingController(
+        text: 'تحديث جديد متوفر الآن للتطبيق. يرجى تحديث التطبيق من المتجر للاستفادة من آخر الميزات والتحسينات.');
+    String error = '';
+    bool sending = false;
+    await showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.card)),
+      ),
+      builder: (sheetContext) {
+        return StatefulBuilder(
+          builder: (context, setSheet) {
+            return Padding(
+              padding: EdgeInsets.only(
+                left: 16,
+                right: 16,
+                top: 16,
+                bottom: MediaQuery.of(sheetContext).viewInsets.bottom + 16,
+              ),
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(child: Text('إشعار تحديث التطبيق', style: AppText.h2)),
+                        TextButton(
+                          onPressed: () => Navigator.pop(sheetContext),
+                          child: Text('إغلاق', style: ar(13, FontWeight.w600, AppColors.zinc500)),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    const Text(
+                      'سيصل إشعار فوري لجميع الأجهزة المستهدفة، وتظهر الرسالة في قائمة إشعارات التطبيق.',
+                      style: TextStyle(fontSize: 12, color: Color(0xFF71717A)),
+                    ),
+                    const SizedBox(height: 12),
+                    AppInput(label: 'عنوان الإشعار', controller: titleCtrl),
+                    const SizedBox(height: 12),
+                    AppTextarea(controller: contentCtrl),
+                    if (error.isNotEmpty) ...[
+                      const SizedBox(height: 10),
+                      Text(error, style: ar(13, FontWeight.w400, AppColors.bad)),
+                    ],
+                    const SizedBox(height: 16),
+                    AppButton(
+                      text: 'إرسال الإشعار',
+                      expand: true,
+                      loading: sending,
+                      onPressed: () async {
+                        if (contentCtrl.text.trim().length < 2) {
+                          setSheet(() => error = 'محتوى الرسالة مطلوب');
+                          return;
+                        }
+                        setSheet(() {
+                          error = '';
+                          sending = true;
+                        });
+                        try {
+                          final d = await ApiClient.instance.post('/api/admin/broadcast', body: {
+                            'title': titleCtrl.text.trim(),
+                            'content': contentCtrl.text.trim(),
+                          });
+                          if (!sheetContext.mounted) return;
+                          Navigator.pop(sheetContext);
+                          if (mounted) {
+                            showToast(
+                                context,
+                                'تم إرسال الإشعار إلى ${asInt(d['sent'])} ${asInt(d['sent']) == 1 ? 'مستخدم' : 'مستخدمين'} (${asInt(d['devices'])} جهاز)');
+                          }
+                        } on ApiException catch (e) {
+                          setSheet(() {
+                            error = e.message;
+                            sending = false;
+                          });
+                        }
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final sectionOptions = <AppSelectOption<int>>[
@@ -227,6 +321,33 @@ class _AdminMessagesScreenState extends State<AdminMessagesScreen> {
       children: [
         Text('رسائل / ملاحظات للوكلاء', style: AppText.h1),
         const SizedBox(height: 16),
+        AppCard(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  const Icon(Icons.system_update_alt, size: 18, color: AppColors.accent),
+                  const SizedBox(width: 6),
+                  Expanded(child: Text('إشعار تحديث التطبيق', style: AppText.title)),
+                ],
+              ),
+              const SizedBox(height: 6),
+              const Text(
+                'إرسال إشعار فوري لجميع الأجهزة المثبت عليها التطبيق لإبلاغهم بتوفر تحديث جديد.',
+                style: TextStyle(fontSize: 12, color: Color(0xFF71717A)),
+              ),
+              const SizedBox(height: 12),
+              AppButton(
+                text: 'إرسال إشعار «تحديث جديد متوفر» لجميع الأجهزة',
+                expand: true,
+                variant: AppButtonVariant.success,
+                onPressed: _updateSheet,
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 12),
         AppCard(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
