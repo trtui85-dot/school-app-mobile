@@ -34,10 +34,10 @@ class UpdateChecker {
     _checked = true;
     try {
       final info = await PackageInfo.fromPlatform();
-      final current = int.tryParse(info.buildNumber) ?? 0;
+      final current = info.version; // ex. "1.0.1" (nom de version, identique sur les 2 stores)
       final data = await ApiClient.instance.get('/api/public/register-info');
-      final latest = asInt(data['latestAppVersion']);
-      if (latest == 0 || latest <= current) return;
+      final latest = asStr(data['latestAppVersion']).trim();
+      if (latest.isEmpty || _compare(latest, current) <= 0) return;
       final custom = asStr(data['appUpdateUrl']).trim();
       final target = custom.isNotEmpty ? custom : _storeUrl;
       if (!context.mounted) return;
@@ -45,6 +45,20 @@ class UpdateChecker {
     } catch (_) {
       // vérification facultative : on ignore les erreurs réseau
     }
+  }
+
+  /// Compare deux versions de type "1.0.2" / "1.0.2.3".
+  /// Renvoie > 0 si [a] est plus récente que [b], 0 si égales, < 0 sinon.
+  static int _compare(String a, String b) {
+    final pa = a.split(RegExp(r'[.+-]'));
+    final pb = b.split(RegExp(r'[.+-]'));
+    final n = pa.length > pb.length ? pa.length : pb.length;
+    for (var i = 0; i < n; i++) {
+      final x = i < pa.length ? (int.tryParse(pa[i]) ?? 0) : 0;
+      final y = i < pb.length ? (int.tryParse(pb[i]) ?? 0) : 0;
+      if (x != y) return x - y;
+    }
+    return 0;
   }
 
   static Future<void> _show(BuildContext context, String url) async {
