@@ -1,0 +1,14 @@
+[
+  {
+    "language": "ar-SA",
+    "text": "الجديد في هذا الإصدار:\n• بطاقة «الدروس» وبطاقة «جدول وموعد الامتحانات» في صفحة الطالب.\n• عرض أسماء الطلاب وعناوين الشاشات بالفرنسية عند اختيار اللغة الفرنسية.\n• ترجمة الإشعارات إلى الفرنسية.\n• تحسين التنقل داخل شاشة تفاصيل الطالب."
+  },
+  {
+    "language": "fr-FR",
+    "text": "Nouveautés de cette version :\n• Ajout de la carte « Leçons » et de la carte « Emploi du temps et examens » dans la page de l'élève.\n• Affichage des noms d'élèves et des titres des écrans en français lorsque la langue française est sélectionnée.\n• Traduction des notifications en français.\n• Amélioration de la navigation dans la fiche de l'élève."
+  },
+  {
+    "language": "en-US",
+    "text": "What's new in this version:\n• New \"Lessons\" card and \"Exams & schedule\" card on the student page.\n• Student names and screen titles now display in French when French is selected.\n• Notifications translated to French.\n• Improved navigation in the student details screen."
+  }
+]
