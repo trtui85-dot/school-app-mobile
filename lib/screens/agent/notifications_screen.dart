@@ -99,9 +99,9 @@ class NotificationsScreenState extends State<NotificationsScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(asStr(n['title']), style: ar(14, FontWeight.w600, AppColors.foreground)),
+                            Text(asStr(isFr ? (n['titleFr'] ?? n['title']) : n['title']), style: ar(14, FontWeight.w600, AppColors.foreground)),
                             const SizedBox(height: 2),
-                            Text(asStr(n['content']), style: ar(12, FontWeight.w400, AppColors.zinc600)),
+                            Text(asStr(isFr ? (n['contentFr'] ?? n['content']) : n['content']), style: ar(12, FontWeight.w400, AppColors.zinc600)),
                             const SizedBox(height: 4),
                             Text(formatArabicDateTime(n['createdAt']), style: ar(11, FontWeight.w400, AppColors.zinc400)),
                           ],

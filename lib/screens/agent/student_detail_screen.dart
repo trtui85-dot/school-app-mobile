@@ -26,6 +26,8 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
   String _resultsUrl = '';
   bool _resultsLoaded = false;
   String _schoolName = '';
+  String _lessonsUrl = '';
+  String _examsUrl = '';
 
   @override
   void initState() {
@@ -40,6 +42,8 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
       if (!mounted) return;
       setState(() {
         _resultsUrl = asStr(d['resultsUrl']).trim();
+        _lessonsUrl = asStr(d['lessonsUrl']).trim();
+        _examsUrl = asStr(d['examsUrl']).trim();
         _schoolName = asStr(d['schoolName']).trim();
         _resultsLoaded = true;
       });
@@ -50,6 +54,18 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
 
   Future<void> _openResults() async {
     final url = _resultsUrl.trim();
+    if (url.isEmpty) return;
+    final uri = Uri.parse(url);
+    final ok = await launchUrl(uri, mode: LaunchMode.inAppBrowserView);
+    if (!ok && mounted) {
+      showToast(context, tr('تعذر فتح صفحة النتائج'), type: ToastType.error);
+    }
+  }
+
+  Future<void> _openUrl(String key) async {
+    final url = key == 'results'
+        ? _resultsUrl.trim()
+        : (key == 'lessons' ? _lessonsUrl.trim() : _examsUrl.trim());
     if (url.isEmpty) return;
     final uri = Uri.parse(url);
     final ok = await launchUrl(uri, mode: LaunchMode.inAppBrowserView);
@@ -80,17 +96,23 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
     final student = _data;
     final title = student == null
         ? tr('التلميذ')
-        : '${asStr(student['arabicFirstName'])} ${asStr(student['arabicLastName'])}';
+        : studentName(student);
 
     return Scaffold(
       backgroundColor: AppColors.zinc50,
       appBar: AppBar(
         backgroundColor: Colors.white,
         title: Text(title, style: AppText.h2),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: AppColors.zinc700),
-          onPressed: () => Navigator.pop(context),
-        ),
+      leading: IconButton(
+        icon: const Icon(Icons.arrow_back, color: AppColors.zinc700),
+        onPressed: () {
+          if (_screen != null) {
+            setState(() => _screen = null);
+          } else {
+            Navigator.pop(context);
+          }
+        },
+      ),
       ),
       body: _loading
           ? const AppSpinner()
@@ -115,13 +137,15 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
     final attendance = asIntOrNull(student['attendanceNumber']);
     final section = student['section'] == null ? null : asMap(student['section']);
 
-    final cards = [
-      ['الغياب', tr('سجل الغياب وأيام الغيبة'), Icons.event_busy, const Color(0xFFF43F5E)],
-      ['المواد والجدول', tr('المواد الدراسية والجدول الأسبوعي'), Icons.menu_book_outlined, const Color(0xFF8B5CF6)],
-      ['النتائج', tr('الدرجات والنتائج الدراسية'), Icons.emoji_events_outlined, const Color(0xFF10B981)],
-      ['رسائل الإدارة', tr('رسائل إدارة المدرسة'), Icons.message_outlined, const Color(0xFFF59E0B)],
-      ['الدفعات', tr('رسوم التسجيل والاشتراكات الشهرية'), Icons.credit_card, const Color(0xFF0EA5E9)],
-    ];
+  final cards = [
+    ['الغياب', tr('سجل الغياب وأيام الغيبة'), Icons.event_busy, const Color(0xFFF43F5E)],
+    ['المواد والجدول', tr('المواد الدراسية والجدول الأسبوعي'), Icons.menu_book_outlined, const Color(0xFF8B5CF6)],
+    ['النتائج', tr('الدرجات والنتائج الدراسية'), Icons.emoji_events_outlined, const Color(0xFF10B981)],
+    ['الدروس', tr('المواد الدراسية والدروس'), Icons.school_outlined, const Color(0xFF06B6D4)],
+    ['جدول وموعد الامتحانات', tr('جدول وموعد الامتحانات'), Icons.event_outlined, const Color(0xFFEC4899)],
+    ['رسائل الإدارة', tr('رسائل إدارة المدرسة'), Icons.message_outlined, const Color(0xFFF59E0B)],
+    ['الدفعات', tr('رسوم التسجيل والاشتراكات الشهرية'), Icons.credit_card, const Color(0xFF0EA5E9)],
+  ];
 
     return ListView(
       padding: const EdgeInsets.all(16),
@@ -240,19 +264,16 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
       children: [
         Row(
           children: [
-            AppButton(
-              text: tr('عودة'),
-              variant: AppButtonVariant.outline,
-              onPressed: () => setState(() => _screen = null),
-            ),
+            Text(tr(_screen!), style: ar(14, FontWeight.w700, AppColors.zinc700)),
             const Spacer(),
-            Text(_screen!, style: ar(14, FontWeight.w700, AppColors.zinc700)),
           ],
         ),
         const SizedBox(height: 16),
         if (_screen == 'الغياب') _absence(student),
         if (_screen == 'المواد والجدول') _subjectsAndSchedule(student),
         if (_screen == 'النتائج') _results(student),
+        if (_screen == 'الدروس') _lessons(student),
+        if (_screen == 'جدول وموعد الامتحانات') _exams(student),
         if (_screen == 'رسائل الإدارة') _messages(student),
         if (_screen == 'الدفعات') _payments(student),
       ],
@@ -433,6 +454,106 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
                   const SizedBox(height: 4),
                   Text(
                     _resultsLoaded ? tr('وحدة النتائج والدرجات ستتوفر لاحقًا') : '—',
+                    textAlign: TextAlign.center,
+                    style: ar(12, FontWeight.w400, AppColors.zinc500),
+                  ),
+                ],
+              ),
+      ),
+    );
+  }
+
+  Widget _lessons(Map<String, dynamic> student) {
+    final hasUrl = _lessonsUrl.isNotEmpty;
+    return AppCard(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        child: hasUrl
+            ? Column(
+                children: [
+                  Container(
+                    width: 56,
+                    height: 56,
+                    decoration: const BoxDecoration(
+                      color: Color(0xFFE0F2FE),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(Icons.school_outlined, color: Color(0xFF06B6D4), size: 26),
+                  ),
+                  const SizedBox(height: 12),
+                  Text(tr('الدروس'), style: ar(15, FontWeight.w700, AppColors.foreground)),
+                  const SizedBox(height: 4),
+                  Text(tr('عرض الدروس'), style: ar(12, FontWeight.w400, AppColors.zinc500)),
+                  const SizedBox(height: 16),
+                  AppButton(text: tr('عرض الدروس'), expand: true, onPressed: () => _openUrl('lessons')),
+                ],
+              )
+            : Column(
+                children: [
+                  Container(
+                    width: 56,
+                    height: 56,
+                    decoration: const BoxDecoration(
+                      color: AppColors.pendingSoft,
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(Icons.hourglass_top_outlined, color: AppColors.pending, size: 26),
+                  ),
+                  const SizedBox(height: 12),
+                  Text(tr('قريبًا'), style: ar(15, FontWeight.w700, AppColors.foreground)),
+                  const SizedBox(height: 4),
+                  Text(
+                    _resultsLoaded ? tr('وحدة الدروس ستتوفر لاحقًا') : '—',
+                    textAlign: TextAlign.center,
+                    style: ar(12, FontWeight.w400, AppColors.zinc500),
+                  ),
+                ],
+              ),
+      ),
+    );
+  }
+
+  Widget _exams(Map<String, dynamic> student) {
+    final hasUrl = _examsUrl.isNotEmpty;
+    return AppCard(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        child: hasUrl
+            ? Column(
+                children: [
+                  Container(
+                    width: 56,
+                    height: 56,
+                    decoration: const BoxDecoration(
+                      color: Color(0xFFFCE7F3),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(Icons.event_outlined, color: Color(0xFFEC4899), size: 26),
+                  ),
+                  const SizedBox(height: 12),
+                  Text(tr('جدول وموعد الامتحانات'), style: ar(15, FontWeight.w700, AppColors.foreground)),
+                  const SizedBox(height: 4),
+                  Text(tr('عرض الجدول والامتحانات'), style: ar(12, FontWeight.w400, AppColors.zinc500)),
+                  const SizedBox(height: 16),
+                  AppButton(text: tr('عرض الجدول والامتحانات'), expand: true, onPressed: () => _openUrl('exams')),
+                ],
+              )
+            : Column(
+                children: [
+                  Container(
+                    width: 56,
+                    height: 56,
+                    decoration: const BoxDecoration(
+                      color: AppColors.pendingSoft,
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(Icons.hourglass_top_outlined, color: AppColors.pending, size: 26),
+                  ),
+                  const SizedBox(height: 12),
+                  Text(tr('قريبًا'), style: ar(15, FontWeight.w700, AppColors.foreground)),
+                  const SizedBox(height: 4),
+                  Text(
+                    _resultsLoaded ? tr('وحدة الجدول والامتحانات ستتوفر لاحقًا') : '—',
                     textAlign: TextAlign.center,
                     style: ar(12, FontWeight.w400, AppColors.zinc500),
                   ),
