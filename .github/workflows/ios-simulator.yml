@@ -1,0 +1,32 @@
+name: Build iOS Simulator App
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-ios-simulator:
+    runs-on: macos-15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Build simulator app
+        run: flutter build ios --simulator --no-codesign
+
+      - name: Package app
+        run: ditto -c -k --sequesterRsrc --keepParent build/ios/iphonesimulator/Runner.app schoolapp-ios-simulator.zip
+
+      - name: Upload simulator app
+        uses: actions/upload-artifact@v4
+        with:
+          name: schoolapp-ios-simulator
+          path: schoolapp-ios-simulator.zip
