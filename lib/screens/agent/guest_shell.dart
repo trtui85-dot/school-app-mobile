@@ -23,13 +23,18 @@ class GuestShell extends StatelessWidget {
           children: [
             const AdsCarousel(),
             const SizedBox(height: 20),
-            AppButton(
-              text: 'الجدول الزمني الأسبوعي',
-              variant: AppButtonVariant.success,
-              expand: true,
-              onPressed: () => Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const TimetableScreen()),
+            Center(
+              child: SizedBox(
+                width: 300,
+                child: AppButton(
+                  text: 'الجدول الزمني الأسبوعي',
+                  variant: AppButtonVariant.success,
+                  expand: true,
+                  onPressed: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const TimetableScreen()),
+                  ),
+                ),
               ),
             ),
           ],
@@ -43,10 +48,25 @@ class GuestShell extends StatelessWidget {
           ],
           selected: 'home',
           onSelect: (id) {
-            if (id != 'home') {
-              Navigator.push(context, MaterialPageRoute(builder: (_) => const LoginScreen()));
-            }
+            if (id != 'home') _showLoginRequired(context);
           },
         ),
       );
+
+  static Future<void> _showLoginRequired(BuildContext context) async {
+    final goToLogin = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('تسجيل الدخول مطلوب'),
+        content: const Text('يجب تسجيل الدخول لاستخدام هذه الميزة.'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(dialogContext, false), child: const Text('إلغاء')),
+          ElevatedButton(onPressed: () => Navigator.pop(dialogContext, true), child: const Text('تسجيل الدخول')),
+        ],
+      ),
+    );
+    if (goToLogin == true && context.mounted) {
+      Navigator.push(context, MaterialPageRoute(builder: (_) => const LoginScreen()));
+    }
+  }
 }
