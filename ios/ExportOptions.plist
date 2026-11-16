@@ -11,7 +11,7 @@
 	<key>provisioningProfiles</key>
 	<dict>
 		<key>com.iqra.schoolapp</key>
-		<string>Iqra iOS ios app store 1791130231</string>
+		<string>Iqra iOS ios_app_store 1791130231</string>
 	</dict>
 </dict>
 </plist>
