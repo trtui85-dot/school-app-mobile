@@ -42,6 +42,9 @@ jobs:
           DEVELOPMENT_TEAM = AB2B2FFS68;\
           PROVISIONING_PROFILE_SPECIFIER = "Iqra iOS ios app store 1791130231";' ios/Runner.xcodeproj/project.pbxproj
 
+      - name: Verify signing identity
+        run: security find-identity -v -p codesigning
+
       - name: Build IPA
         run: |
           flutter build ipa --release --build-number="$GITHUB_RUN_NUMBER" \
