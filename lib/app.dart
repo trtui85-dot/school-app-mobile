@@ -7,7 +7,7 @@ import 'core/session.dart';
 import 'core/theme.dart';
 import 'screens/admin/admin_shell.dart';
 import 'screens/agent/agent_shell.dart';
-import 'screens/auth/landing_screen.dart';
+import 'screens/agent/guest_shell.dart';
 import 'services/update_checker.dart';
 
 class SchoolApp extends StatelessWidget {
@@ -61,7 +61,7 @@ class _RootGateState extends State<RootGate> {
       );
     }
     final user = session.user;
-    if (user == null) return const LandingScreen();
+    if (user == null) return const GuestShell();
     if (user.isAdmin) return const AdminShell();
     return const AgentShell();
   }

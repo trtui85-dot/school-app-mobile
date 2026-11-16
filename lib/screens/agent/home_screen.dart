@@ -7,6 +7,7 @@ import '../../core/utils.dart';
 import '../../widgets/ads_carousel.dart';
 import '../../widgets/ui.dart';
 import 'student_detail_screen.dart';
+import 'timetable_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   final VoidCallback onOpenRegister;
@@ -50,6 +51,16 @@ class HomeScreenState extends State<HomeScreen> {
         children: [
           const AdsCarousel(),
           const SizedBox(height: 20),
+          AppButton(
+            variant: AppButtonVariant.success,
+            text: 'الجدول الزمني الأسبوعي',
+            expand: true,
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const TimetableScreen()),
+            ),
+          ),
+          const SizedBox(height: 20),
           Text(tr('أبنائي'), style: AppText.h1),
           const SizedBox(height: 16),
           if (_error.isNotEmpty) ...[
@@ -65,8 +76,6 @@ class HomeScreenState extends State<HomeScreen> {
                   padding: const EdgeInsets.only(bottom: 12),
                   child: _studentCard(s),
                 )),
-          const SizedBox(height: 8),
-          AppButton(text: tr('تسجيل طفل جديد'), expand: true, onPressed: widget.onOpenRegister),
         ],
       ),
     );
