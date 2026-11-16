@@ -40,7 +40,7 @@ jobs:
           sed -i '' 's/iPhone Developer/Apple Distribution/g' ios/Runner.xcodeproj/project.pbxproj
           sed -i '' '/CODE_SIGN_STYLE = Manual;/a\
           DEVELOPMENT_TEAM = AB2B2FFS68;\
-          PROVISIONING_PROFILE_SPECIFIER = "Iqra iOS ios_app_store 1791130231";' ios/Runner.xcodeproj/project.pbxproj
+          PROVISIONING_PROFILE_SPECIFIER = "Iqra App Store Push";' ios/Runner.xcodeproj/project.pbxproj
 
       - name: Verify signing identity
         run: security find-identity -v -p codesigning
