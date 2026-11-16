@@ -36,11 +36,19 @@ jobs:
 
       - name: Configure manual distribution signing
         run: |
-          sed -i '' 's/CODE_SIGN_STYLE = Automatic;/CODE_SIGN_STYLE = Manual;/g' ios/Runner.xcodeproj/project.pbxproj
-          sed -i '' 's/iPhone Developer/Apple Distribution/g' ios/Runner.xcodeproj/project.pbxproj
-          sed -i '' '/CODE_SIGN_STYLE = Manual;/a\
-          DEVELOPMENT_TEAM = AB2B2FFS68;\
-          PROVISIONING_PROFILE_SPECIFIER = "Iqra App Store Push";' ios/Runner.xcodeproj/project.pbxproj
+          python3 - <<'PY'
+          from pathlib import Path
+
+          project = Path("ios/Runner.xcodeproj/project.pbxproj")
+          contents = project.read_text()
+          contents = contents.replace("CODE_SIGN_STYLE = Automatic;", "CODE_SIGN_STYLE = Manual;")
+          contents = contents.replace("iPhone Developer", "Apple Distribution")
+          contents = contents.replace(
+              "CODE_SIGN_STYLE = Manual;",
+              "CODE_SIGN_STYLE = Manual;\n\t\t\t\tDEVELOPMENT_TEAM = AB2B2FFS68;\n\t\t\t\tPROVISIONING_PROFILE_SPECIFIER = \"Iqra App Store Push\";",
+          )
+          project.write_text(contents)
+          PY
 
       - name: Verify signing identity
         run: security find-identity -v -p codesigning
