@@ -34,6 +34,14 @@ jobs:
           mkdir -p "$HOME/Library/MobileDevice/Provisioning Profiles"
           echo "$PROFILE_BASE64" | base64 --decode > "$HOME/Library/MobileDevice/Provisioning Profiles/iqra.mobileprovision"
 
+      - name: Configure manual distribution signing
+        run: |
+          sed -i '' 's/CODE_SIGN_STYLE = Automatic;/CODE_SIGN_STYLE = Manual;/g' ios/Runner.xcodeproj/project.pbxproj
+          sed -i '' 's/iPhone Developer/Apple Distribution/g' ios/Runner.xcodeproj/project.pbxproj
+          sed -i '' '/CODE_SIGN_STYLE = Manual;/a\
+          DEVELOPMENT_TEAM = AB2B2FFS68;\
+          PROVISIONING_PROFILE_SPECIFIER = "Iqra iOS ios app store 1791130231";' ios/Runner.xcodeproj/project.pbxproj
+
       - name: Build IPA
         run: |
           flutter build ipa --release --build-number="$GITHUB_RUN_NUMBER" \
