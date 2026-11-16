@@ -55,7 +55,7 @@ jobs:
             -archivePath build/ios/archive/Runner.xcarchive \
             CODE_SIGN_STYLE=Manual \
             DEVELOPMENT_TEAM=AB2B2FFS68 \
-            CODE_SIGN_IDENTITY="Apple Distribution" \
+            CODE_SIGN_IDENTITY="Apple Distribution"
           mkdir -p build/ios/ipa
           xcodebuild -exportArchive \
             -archivePath build/ios/archive/Runner.xcarchive \
