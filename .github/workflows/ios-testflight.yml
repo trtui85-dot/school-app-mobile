@@ -86,6 +86,9 @@ jobs:
             -archivePath build/ios/archive/Runner.xcarchive \
             -exportOptionsPlist ios/ExportOptions.plist \
             -exportPath build/ios/ipa
+          ipa_path=$(find build/ios/ipa -maxdepth 1 -type f -name '*.ipa' -print -quit)
+          test -n "$ipa_path"
+          cp "$ipa_path" build/ios/ipa/Runner.ipa
 
       - name: Upload to TestFlight
         uses: apple-actions/upload-testflight-build@v3
