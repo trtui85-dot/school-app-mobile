@@ -97,6 +97,18 @@ jobs:
           path: build/ios/ipa/Runner.ipa
           if-no-files-found: error
 
+      - name: Build iOS Simulator app
+        run: |
+          flutter build ios --simulator --release --build-number="$GITHUB_RUN_NUMBER"
+          ditto -c -k --sequesterRsrc --keepParent build/ios/iphonesimulator/Runner.app build/ios/Runner-simulator.zip
+
+      - name: Save Simulator artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: iqra-ios-simulator
+          path: build/ios/Runner-simulator.zip
+          if-no-files-found: error
+
       - name: Upload to TestFlight
         uses: apple-actions/upload-testflight-build@v3
         with:
