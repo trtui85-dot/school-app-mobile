@@ -90,6 +90,13 @@ jobs:
           test -n "$ipa_path"
           cp "$ipa_path" build/ios/ipa/Runner.ipa
 
+      - name: Save IPA artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: iqra-ios-ipa
+          path: build/ios/ipa/Runner.ipa
+          if-no-files-found: error
+
       - name: Upload to TestFlight
         uses: apple-actions/upload-testflight-build@v3
         with:
