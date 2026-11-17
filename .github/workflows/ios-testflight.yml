@@ -47,6 +47,10 @@ jobs:
               "CODE_SIGN_STYLE = Manual;",
               "CODE_SIGN_STYLE = Manual;\n\t\t\t\tDEVELOPMENT_TEAM = AB2B2FFS68;\n\t\t\t\tPROVISIONING_PROFILE_SPECIFIER = \"Iqra App Store Push\";",
           )
+          contents = contents.replace(
+              "PRODUCT_BUNDLE_IDENTIFIER = com.iqra.schoolapp;",
+              "PRODUCT_BUNDLE_IDENTIFIER = com.iqra.schoolapp;\n\t\t\t\tCODE_SIGN_STYLE = Manual;\n\t\t\t\tCODE_SIGN_IDENTITY = \"Apple Distribution\";\n\t\t\t\tDEVELOPMENT_TEAM = AB2B2FFS68;\n\t\t\t\tPROVISIONING_PROFILE_SPECIFIER = \"Iqra App Store Push\";",
+          )
           project.write_text(contents)
           PY
 
