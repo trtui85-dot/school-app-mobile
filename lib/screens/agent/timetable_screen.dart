@@ -14,7 +14,6 @@ class TimetableScreen extends StatefulWidget {
 }
 
 class _TimetableScreenState extends State<TimetableScreen> {
-  static const allowedSections = {'5C', '5D', '6C', '6D', '7D', '7LO'};
   List<Map<String, dynamic>>? _sections;
   String _error = '';
 
@@ -35,7 +34,7 @@ class _TimetableScreenState extends State<TimetableScreen> {
           : asMapList(response['students']).map((student) => student['section'] == null ? <String, dynamic>{} : asMap(student['section'])).toList();
       for (final section in source) {
         final name = asStr(section['name']).trim();
-        if (allowedSections.contains(name)) unique[name] = section;
+        unique[name] = section;
       }
       if (mounted) setState(() => _sections = unique.values.toList());
     } on ApiException catch (e) {
