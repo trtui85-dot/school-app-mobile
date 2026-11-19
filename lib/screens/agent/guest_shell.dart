@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../core/theme.dart';
+import '../../core/l10n.dart';
 import '../../widgets/ads_carousel.dart';
 import '../../widgets/ios_bottom_bar.dart';
 import '../../widgets/logo.dart';
@@ -12,7 +13,9 @@ class GuestShell extends StatelessWidget {
   const GuestShell({super.key});
 
   @override
-  Widget build(BuildContext context) => Scaffold(
+  Widget build(BuildContext context) => ListenableBuilder(
+        listenable: LocaleManager.instance,
+        builder: (context, _) => Scaffold(
         backgroundColor: AppColors.zinc50,
         appBar: AppBar(
           backgroundColor: Colors.white,
@@ -27,7 +30,7 @@ class GuestShell extends StatelessWidget {
               child: SizedBox(
                 width: 300,
                 child: AppButton(
-                  text: 'الجدول الزمني الأسبوعي',
+                  text: tr('الجدول الزمني الأسبوعي'),
                   variant: AppButtonVariant.success,
                   expand: true,
                   onPressed: () => Navigator.push(
@@ -50,6 +53,7 @@ class GuestShell extends StatelessWidget {
           onSelect: (id) {
             if (id != 'home') _showLoginRequired(context);
           },
+        ),
         ),
       );
 
