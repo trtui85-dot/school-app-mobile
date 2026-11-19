@@ -37,7 +37,7 @@ class _AdsCarouselState extends State<AdsCarousel> {
 
   Future<void> _load() async {
     try {
-      final d = await ApiClient.instance.get('/api/public/ads');
+      final d = await ApiClient.instance.get('/api/public/ads', useCache: false);
       if (!mounted) return;
       final ads = asMapList(d['ads']);
       setState(() => _ads = ads);
