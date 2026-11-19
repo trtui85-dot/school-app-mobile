@@ -12,6 +12,22 @@ class AdsCarousel extends StatefulWidget {
   final double height;
   const AdsCarousel({super.key, this.height = 150});
 
+  static Future<List<Map<String, dynamic>>>? _preloaded;
+
+  static Future<void> preload() {
+    _preloaded ??= _fetchAds();
+    return _preloaded!.then((_) {});
+  }
+
+  static Future<List<Map<String, dynamic>>> _fetchAds() async {
+    try {
+      final d = await ApiClient.instance.get('/api/public/ads', useCache: false);
+      return asMapList(d['ads']);
+    } catch (_) {
+      return [];
+    }
+  }
+
   @override
   State<AdsCarousel> createState() => _AdsCarouselState();
 }
@@ -37,9 +53,9 @@ class _AdsCarouselState extends State<AdsCarousel> {
 
   Future<void> _load() async {
     try {
-      final d = await ApiClient.instance.get('/api/public/ads', useCache: false);
       if (!mounted) return;
-      final ads = asMapList(d['ads']);
+      final ads = await (AdsCarousel._preloaded ??= AdsCarousel._fetchAds());
+      if (!mounted) return;
       setState(() => _ads = ads);
       if (ads.length > 1) {
         _controller = PageController();

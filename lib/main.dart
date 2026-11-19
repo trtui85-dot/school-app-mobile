@@ -9,9 +9,11 @@ import 'app.dart';
 import 'core/l10n.dart';
 import 'core/session.dart';
 import 'services/push_service.dart';
+import 'widgets/ads_carousel.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  unawaited(AdsCarousel.preload());
   await Firebase.initializeApp();
   await PushService.configure();
   await LocaleManager.instance.load();
