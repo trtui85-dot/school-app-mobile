@@ -43,11 +43,11 @@ class GuestShell extends StatelessWidget {
           ],
         ),
         bottomNavigationBar: IOSBottomBar(
-          items: const [
-            IOSNavItem(id: 'home', label: 'الرئيسية', icon: Icons.home_outlined, activeIcon: Icons.home),
-            IOSNavItem(id: 'register', label: 'تسجيل', icon: Icons.person_add_alt, activeIcon: Icons.person_add_alt_1),
-            IOSNavItem(id: 'notifications', label: 'الإشعارات', icon: Icons.notifications_none, activeIcon: Icons.notifications),
-            IOSNavItem(id: 'complaints', label: 'الشكاوى', icon: Icons.chat_bubble_outline, activeIcon: Icons.chat_bubble),
+          items: [
+            IOSNavItem(id: 'home', label: tr('الرئيسية'), icon: Icons.home_outlined, activeIcon: Icons.home),
+            IOSNavItem(id: 'register', label: tr('تسجيل'), icon: Icons.person_add_alt, activeIcon: Icons.person_add_alt_1),
+            IOSNavItem(id: 'notifications', label: tr('الإشعارات'), icon: Icons.notifications_none, activeIcon: Icons.notifications),
+            IOSNavItem(id: 'complaints', label: tr('الشكاوى'), icon: Icons.chat_bubble_outline, activeIcon: Icons.chat_bubble),
           ],
           selected: 'home',
           onSelect: (id) {
@@ -61,11 +61,11 @@ class GuestShell extends StatelessWidget {
     final goToLogin = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('تسجيل الدخول مطلوب'),
-        content: const Text('يجب تسجيل الدخول لاستخدام هذه الميزة.'),
+        title: Text(tr('تسجيل الدخول مطلوب')),
+        content: Text(tr('يجب تسجيل الدخول لاستخدام هذه الميزة.')),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(dialogContext, false), child: const Text('إلغاء')),
-          ElevatedButton(onPressed: () => Navigator.pop(dialogContext, true), child: const Text('تسجيل الدخول')),
+          TextButton(onPressed: () => Navigator.pop(dialogContext, false), child: Text(tr('إلغاء'))),
+          ElevatedButton(onPressed: () => Navigator.pop(dialogContext, true), child: Text(tr('تسجيل الدخول'))),
         ],
       ),
     );

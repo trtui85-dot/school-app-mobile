@@ -84,6 +84,8 @@ const Map<String, String> _fr = {
   'تسجيل': 'Inscription',
   'الإشعارات': 'Notifications',
   'الشكاوى': 'Réclamations',
+  'تسجيل الدخول مطلوب': 'Connexion requise',
+  'يجب تسجيل الدخول لاستخدام هذه الميزة.': 'Connectez-vous pour utiliser cette fonctionnalité.',
 
   // ---- Home ----
   'أبنائي': 'Mes enfants',
