@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../core/api_client.dart';
+import '../../core/l10n.dart';
 import '../../core/theme.dart';
 import '../../core/utils.dart';
 import '../../widgets/timetable_card.dart';
@@ -45,7 +46,7 @@ class _TimetableScreenState extends State<TimetableScreen> {
   @override
   Widget build(BuildContext context) => Scaffold(
         backgroundColor: AppColors.zinc50,
-        appBar: widget.showAppBar ? AppBar(backgroundColor: Colors.white, title: Text('الجدول الزمني الأسبوعي', style: AppText.h2)) : null,
+        appBar: widget.showAppBar ? AppBar(backgroundColor: Colors.white, title: Text(tr('الجدول الزمني الأسبوعي'), style: AppText.h2)) : null,
         body: _sections == null
             ? const AppSpinner()
             : RefreshIndicator(
@@ -56,15 +57,15 @@ class _TimetableScreenState extends State<TimetableScreen> {
                     : ListView(
                         padding: const EdgeInsets.all(16),
                         children: [
-                          Text('اختر قسمك لعرض الجدول', style: AppText.h2),
+                          Text(tr('اختر قسمك لعرض الجدول'), style: AppText.h2),
                           const SizedBox(height: 6),
-                          Text('ستظهر لك الأقسام المتاحة حسب بيانات الإدارة.', style: AppText.body),
+                          Text(tr('ستظهر لك الأقسام المتاحة حسب بيانات الإدارة.'), style: AppText.body),
                           const SizedBox(height: 16),
                           ..._sections!.map((section) => Padding(
                                 padding: const EdgeInsets.only(bottom: 10),
                                 child: _sectionButton(context, section),
                               )),
-                          if (_sections!.isEmpty) AppCard(child: AppEmpty(title: 'لا توجد جداول متاحة حاليًا')),
+                          if (_sections!.isEmpty) AppCard(child: AppEmpty(title: tr('لا توجد جداول متاحة حاليًا'))),
                         ],
                       ),
               ),
@@ -95,7 +96,7 @@ class _SectionTimetableScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Scaffold(
         backgroundColor: AppColors.zinc50,
-        appBar: AppBar(backgroundColor: Colors.white, title: Text('جدول ${asStr(section['name'])}', style: AppText.h2)),
+        appBar: AppBar(backgroundColor: Colors.white, title: Text('${tr('جدول')} ${asStr(section['name'])}', style: AppText.h2)),
         body: ListView(
           padding: const EdgeInsets.all(16),
           children: [TimetableSection(section: section, studentName: '', schoolName: 'مدارس اقرأ الحديثة')],
