@@ -7,7 +7,7 @@ on:
 
 jobs:
   build-ios:
-    runs-on: macos-26
+    runs-on: macos-15
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -59,7 +59,7 @@ jobs:
 
       - name: Build IPA
         run: |
-          flutter build ios --release --no-codesign --build-number="$GITHUB_RUN_NUMBER"
+          flutter build ios --release --no-codesign --build-number=11
           python3 - <<'PY'
           from pathlib import Path
 
