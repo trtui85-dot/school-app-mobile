@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
+import '../../core/api_client.dart';
 import '../../core/theme.dart';
 import '../../core/l10n.dart';
+import '../../core/utils.dart';
 import '../../widgets/ads_carousel.dart';
 import '../../widgets/ios_bottom_bar.dart';
 import '../../widgets/logo.dart';
@@ -9,8 +12,23 @@ import '../../widgets/ui.dart';
 import '../auth/login_screen.dart';
 import 'timetable_screen.dart';
 
-class GuestShell extends StatelessWidget {
+class GuestShell extends StatefulWidget {
   const GuestShell({super.key});
+
+  @override
+  State<GuestShell> createState() => _GuestShellState();
+}
+
+class _GuestShellState extends State<GuestShell> {
+  String? _adminPhone;
+
+  @override
+  void initState() {
+    super.initState();
+    ApiClient.instance.get('/api/public/register-info').then((data) {
+      if (mounted) setState(() => _adminPhone = asStrOrNull(data['adminPhone']));
+    }).catchError((_) {});
+  }
 
   @override
   Widget build(BuildContext context) => ListenableBuilder(
@@ -20,6 +38,23 @@ class GuestShell extends StatelessWidget {
         appBar: AppBar(
           backgroundColor: Colors.white,
           title: const AppLogo(size: 32),
+          actions: [
+            if (_adminPhone != null && _adminPhone!.isNotEmpty)
+              IconButton(
+                tooltip: tr('اتصال بالإدارة'),
+                icon: const Icon(Icons.phone_outlined, color: AppColors.ok),
+                onPressed: () => launchUrl(Uri.parse('tel:$_adminPhone')),
+              ),
+            TextButton.icon(
+              onPressed: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const LoginScreen()),
+              ),
+              icon: const Icon(Icons.login, size: 18),
+              label: Text(tr('تسجيل الدخول')),
+            ),
+            const SizedBox(width: 4),
+          ],
         ),
         body: ListView(
           padding: const EdgeInsets.all(16),
