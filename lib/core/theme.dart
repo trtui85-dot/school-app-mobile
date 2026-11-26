@@ -36,8 +36,14 @@ class AppRadius {
 TextStyle ar(double size, FontWeight weight, Color color, {double? height}) =>
     isFr
         ? fr(size, weight, color, height: height)
-        : GoogleFonts.ibmPlexSansArabic(
-            fontSize: size, fontWeight: weight, color: color, height: height);
+        : TextStyle(
+            fontFamily: 'Thmanyah',
+            fontSize: size,
+            fontWeight: weight,
+            color: color,
+            height: height,
+            fontFeatures: const [FontFeature.enable('ss01')],
+          );
 
 TextStyle mono(double size, FontWeight weight, Color color) =>
     GoogleFonts.ibmPlexMono(fontSize: size, fontWeight: weight, color: color);
@@ -66,7 +72,7 @@ ThemeData buildAppTheme() {
   );
   final textTheme = isFr
       ? GoogleFonts.quicksandTextTheme(base.textTheme)
-      : GoogleFonts.ibmPlexSansArabicTextTheme(base.textTheme);
+      : base.textTheme.apply(fontFamily: 'Thmanyah');
   return base.copyWith(
     textTheme: textTheme.apply(
       bodyColor: AppColors.foreground,
