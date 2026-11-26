@@ -59,7 +59,7 @@ jobs:
 
       - name: Build IPA
         run: |
-          flutter build ios --release --no-codesign --build-number=11
+          flutter build ios --release --no-codesign --build-number=12
           python3 - <<'PY'
           from pathlib import Path
 
